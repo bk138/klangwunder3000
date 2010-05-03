@@ -1,0 +1,81 @@
+#
+#
+WXCONFIG=wx-config
+ALCONFIG=pkg-config freealut
+
+CXXFLAGS = $(shell $(WXCONFIG) --cxxflags) $(shell $(ALCONFIG) --cflags) -O2 -g
+LIBS = $(shell $(WXCONFIG) --libs adv) $(shell $(ALCONFIG) --static --libs)
+
+CXX=g++ -arch i386 -arch ppc
+OUTFILE=klangwunder3000
+BUNDLE=Klangwunder3000.app/Contents
+VER=0.01
+
+#
+# 
+
+OBJS=KW3KApp.o Klangset.o gui/FrameMain.o gui/MyFrameMain.o 
+
+
+####################
+
+
+.PHONY : clean
+
+all: bundle
+
+$(OUTFILE):	$(OBJS) 	 
+	$(CXX) $(OBJS) -o $(OUTFILE) $(LIBS)
+
+bundle:		$(OUTFILE)
+	strip $(OUTFILE)
+	mkdir -p $(BUNDLE)/MacOS
+	mkdir -p $(BUNDLE)/Resources                                   
+	echo -n "APPL????" > $(BUNDLE)/PkgInfo
+	cp $(OUTFILE) $(BUNDLE)/MacOS/
+	cp res/icon.icns $(BUNDLE)/Resources
+	echo \
+	"<?xml version="1.0" encoding="UTF-8"?>\
+	<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"\
+	<plist version="1.0">\
+	<dict>\
+	<key>CFBundleDevelopmentRegion</key>\
+	<string>English</string>\
+	<key>CFBundleExecutable</key>\
+	<string>$(OUTFILE)</string>\
+	<key>CFBundleIconFile</key>\
+	<string>icon.icns</string>\
+	<key>CFBundleGetInfoString</key>\
+	<string>Klangwunder3000 $(VER), © icke, 2007 </string>\
+	<key>CFBundleName</key>  \
+	<string>Klangwunder3000</string> \
+	<key>CFBundlePackageType</key> \
+	<string>APPL</string>          \
+	<key>CFBundleShortVersionString</key> \
+	<string>$(VER)</string> \
+	<key>CFBundleVersion</key> \
+	<string>$(VER)</string> \
+	</dict>   \
+	</plist> \
+	" >  $(BUNDLE)/Info.plist    
+
+
+
+# clean me up, scotty
+clean:
+	$(RM) $(OUTFILE) $(OBJS) *~ gui/*~
+	
+
+
+# deps
+KW3KApp.o: KW3KApp.h
+Klangset.o: Klangset.h
+gui/FrameMain.o: gui/FrameMain.h
+gui/MyFrameMain.o: gui/MyFrameMain.h gui/FrameMain.o
+
+
+
+
+
+
+

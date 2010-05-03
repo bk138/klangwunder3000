@@ -1,0 +1,47 @@
+#
+#
+WXCONFIG=/usr/local/share/win32-cross-env/bin/wx-config
+ALCONFIG=/usr/local/share/win32-cross-env/bin/
+
+CXX=i586-mingw32msvc-g++
+CXXFLAGS = $(shell $(WXCONFIG)  --cxxflags) $(shell $(SDLCONFIG) --cflags) -O2 -g
+WINDRES = $(shell $(WXCONFIG)  --rescomp) 
+LIBS = $(shell  $(WXCONFIG) --libs core,adv) $(shell $(SDLCONFIG) --static-libs)
+OUTFILE=klangwunder3000.exe 
+
+OBJS=KW3KApp.o Klangset.o gui/FrameMain.o gui/MyFrameMain.o gui/winres.o
+
+
+#
+#
+
+#########################
+
+.PHONY : clean
+
+
+all: $(OUTFILE) 
+
+$(OUTFILE):	$(OBJS) 	 
+	$(CXX) $(OBJS) -o $(OUTFILE) $(LIBS)
+
+
+gui/winres.o:	gui/klangwunder3000.rc
+	cd gui && $(WINDRES) klangwunder3000.rc winres.o
+
+
+# clean me up, scotty
+clean:
+	$(RM) $(OUTFILE) $(OBJS) *~ gui/*~
+
+
+# deps
+KW3KApp.o: KW3KApp.h
+Klangset.o: Klangset.h
+gui/FrameMain.o: gui/FrameMain.h
+gui/MyFrameMain.o: gui/MyFrameMain.h gui/FrameMain.o
+
+
+
+
+

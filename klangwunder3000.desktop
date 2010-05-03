@@ -1,0 +1,11 @@
+[Desktop Entry]                               
+Encoding=UTF-8                                                                  
+Exec=klangwunder3000
+Icon=klangwunder3000.png
+Name=Klangwunder3000
+Type=Application
+Comment=
+Terminal=false
+StartupNotify=false
+Categories=Application;Game;
+

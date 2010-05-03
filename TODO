@@ -1,0 +1,18 @@
+
+
+* grid anbinden
+
+* sound engine 
+    * libavformat + libavcodec + openal
+	viele formate, postional audio
+
+    * SDL_sound + SDL_mixer + SDL
+	ogg, mp3, wav; positional audio
+	
+    * gstreamer ?
+	viele formate, stereo panorama, visualizing
+	
+    * xine ?
+	wie gstreamer
+
+* uh oh probs mit den locales ;-(
