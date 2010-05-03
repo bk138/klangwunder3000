@@ -4,13 +4,14 @@
 
 * sound engine 
     * libavformat + libavcodec + openal
-	viele formate, postional audio
+	viele formate, 3D positional audio
 
     * SDL_sound + SDL_mixer + SDL
-	ogg, mp3, wav; positional audio
+	ogg, mp3, wav; 2D positional audio
 	
     * gstreamer ?
 	viele formate, stereo panorama, visualizing
+	ffmpeg-plugin
 	
     * xine ?
 	wie gstreamer
