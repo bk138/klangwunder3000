@@ -1,0 +1,2 @@
+?package(klangwunder3000):needs="X11" section="Applications/Audio"\
+  title="klangwunder3000" command="/usr/bin/klangwunder3000"

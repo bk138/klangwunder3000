@@ -1,0 +1,14 @@
+Source: klangwunder3000
+Section: sound
+Priority: extra
+Maintainer: Christian Beier <dontmind@freeshell.org>
+Build-Depends: debhelper (>= 7), autotools-dev, libwxgtk2.8-dev
+Standards-Version: 3.7.3
+Homepage: http://sourceforge.net/projects/klangwunder3000/
+
+Package: klangwunder3000
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: Soundscape Generator
+ klangwunder3000 is a cross-platform soundscape generator.
+
