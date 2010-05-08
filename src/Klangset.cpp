@@ -2,6 +2,8 @@
 #include <iostream>
 #include <memory>
 
+#include "ffmpeg/avcodec.h"
+#include "ffmpeg/avformat.h"
 #include "wx/fileconf.h"
 #include "wx/mstream.h"
 #include "wx/intl.h"
