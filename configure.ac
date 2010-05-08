@@ -81,6 +81,10 @@ if test "$HOST_IS_DARWIN" = "yes"; then
 fi
 
 
+# check libs for reading in audio
+PKG_CHECK_MODULES(libavcodec, libavcodec)
+PKG_CHECK_MODULES(libavformat, libavformat)
+
 
 dnl gdb under windows does backtraces only with stabs format?
 if test "$HOST_IS_WINDOWS" = "yes"; then
@@ -99,6 +103,11 @@ AC_SUBST(WX_CPPFLAGS)
 AC_SUBST(WX_CXXFLAGS)
 AC_SUBST(WX_LIBS)
 AC_SUBST(WX_RESCOMP)
+AC_SUBST(libavcodec_CFLAGS)
+AC_SUBST(libavcodec_LIBS)
+AC_SUBST(libavformat_CFLAGS)
+AC_SUBST(libavformat_LIBS)
+
 
 AC_ISC_POSIX
 AC_PROG_CPP
