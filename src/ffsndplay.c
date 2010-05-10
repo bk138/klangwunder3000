@@ -164,37 +164,28 @@ int audio_decode_frame(AVCodecContext *aCodecCtx, uint8_t *audio_buf, int buf_si
 /*
  * Audio decoding.
  */
-void audio_decode_example(const char *outfilename, const char *filename)
+int audio_decode_example(const char *outfilename, const char *filename)
 {
-  
-  
-    int out_size, size, len;
-    FILE *f, *outfile;
-    uint8_t *outbuf;
-    uint8_t inbuf[INBUF_SIZE + FF_INPUT_BUFFER_PADDING_SIZE], *inbuf_ptr;
+  int out_size, len;
+  FILE *outfile;
+  uint8_t *outbuf;
+  uint8_t *inbuf_ptr;
 
- AVFormatContext *pFormatCtx;
-  //  int             i, videoStream, audioStream;
+  AVFormatContext *pFormatCtx;
   int             i, audioStream;
-  AVCodecContext  *pCodecCtx;
-  AVCodec         *pCodec;
-  AVFrame         *pFrame; 
   AVPacket        packet;
-  int             frameFinished;
-  float           aspect_ratio;
-  
   AVCodecContext  *aCodecCtx;
   AVCodec         *aCodec;
 
 
-    printf("Audio decoding\n");
+  printf("Audio decoding\n");
 
-    // Register all formats and codecs
-    av_register_all();
+  // Register all formats and codecs
+  av_register_all();
 
 
 
- // Open video file
+  // Open video file
   if(av_open_input_file(&pFormatCtx, filename, NULL, 0, NULL)!=0)
     return -1; // Couldn't open file
   
@@ -236,7 +227,7 @@ void audio_decode_example(const char *outfilename, const char *filename)
 
   printf("sample rate %d\n", aCodecCtx->sample_rate);
   printf("channels %d\n", aCodecCtx->channels);
-  printf("duration %d\n", pFormatCtx->duration/AV_TIME_BASE + 1);
+  printf("duration %ld\n", pFormatCtx->duration/AV_TIME_BASE + 1);
 
   // sample_rate x seconds x channels
   size_t bufsz = 10* aCodecCtx->sample_rate * (pFormatCtx->duration/AV_TIME_BASE + 1) * aCodecCtx->channels;
@@ -252,21 +243,17 @@ void audio_decode_example(const char *outfilename, const char *filename)
 
   
 
-    outbuf = malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE*3);
-    out_size= AVCODEC_MAX_AUDIO_FRAME_SIZE*3;
+  outbuf = av_malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE*3);
+  out_size= AVCODEC_MAX_AUDIO_FRAME_SIZE*3;
 
-    printf("outsize %d\n", out_size);
+  printf("outsize %d\n", out_size);
 
-    /* f = fopen(filename, "rb");
-    if (!f) {
-        fprintf(stderr, "could not open %s\n", filename);
-        exit(1);
-	}*/
-    outfile = fopen(outfilename, "wb");
-    if (!outfile) {
-      //av_free(c);
-        exit(1);
-    }
+
+  outfile = fopen(outfilename, "wb");
+  if (!outfile) {
+    //av_free(c);
+    exit(1);
+  }
 
 
 
@@ -276,34 +263,35 @@ void audio_decode_example(const char *outfilename, const char *filename)
 
 
   /* decode until eof */
-    inbuf_ptr = inbuf;
-while(av_read_frame(pFormatCtx, &packet)>=0 || !quit) {
+  while(av_read_frame(pFormatCtx, &packet)>=0 || !quit) {
   
     if(packet.stream_index==audioStream) 
       {
-	fprintf(stderr, "got audio\n");
+	//fprintf(stderr, "got audio\n");
 
 
         if (packet.size == 0)
-            break;
+	  break;
 
         inbuf_ptr = packet.data;
         while (packet.size > 0) {
-            len = avcodec_decode_audio2(aCodecCtx, (short *)outbuf, &out_size,
-                                       inbuf_ptr, packet.size);
-            if (len < 0) {
-                fprintf(stderr, "Error while decoding\n");
-                exit(1);
-            }
-            if (out_size > 0) {
-                /* if a frame has been decoded, output it */
-                fwrite(outbuf, 1, out_size, outfile);
-            }
-            packet.size -= len;
-            inbuf_ptr += len;
+	  len = avcodec_decode_audio2(aCodecCtx, (short *)outbuf, &out_size,
+				      inbuf_ptr, packet.size);
+	  if (len < 0) {
+	    fprintf(stderr, "Error while decoding\n");
+	    exit(1);
+	  }
+	  if (out_size > 0) {
+	    /* if a frame has been decoded, output it */
+	    //fwrite(outbuf, 1, out_size, outfile);
+	    memcpy(bufptr, outbuf, out_size);
+	    bufptr += out_size;
+	  }
+	  packet.size -= len;
+	  inbuf_ptr += len;
 
-	    out_size = AVCODEC_MAX_AUDIO_FRAME_SIZE*3;
-	    fprintf(stderr, "outsz %d\n", out_size);
+	  out_size = AVCODEC_MAX_AUDIO_FRAME_SIZE*3;
+	  //fprintf(stderr, "outsz %d\n", out_size);
 	    
         }
 
@@ -314,17 +302,26 @@ while(av_read_frame(pFormatCtx, &packet)>=0 || !quit) {
 	fprintf(stderr, "got sth else\n");
 	av_free_packet(&packet);
       }
- }
+  }
 
 
+  fwrite(buf, 1, bufsz, outfile);
 
 
-    fclose(outfile);
-    //fclose(f);
-    free(outbuf);
+  fclose(outfile);
+  //fclose(f);
+  av_free(outbuf);
 
-    //avcodec_close(c);
-    //av_free(c);
+
+  // Close the codec
+  avcodec_close(aCodecCtx);
+  
+  // Close the video file
+  av_close_input_file(pFormatCtx);
+
+  //av_free(c);
+
+  return 0;
 }
 
 
@@ -578,15 +575,15 @@ int main(int argc, char *argv[]) {
 	fprintf(stderr, "got SDL_QUIT\n");
 
 
-  FILE *outfile;
-  outfile = fopen("out.raw", "wb");
-  if (!outfile) {
-    fprintf(stderr, "opening outfile failed \n");
-  }
-  fwrite(buf, 1, bufsz, outfile);
-  fclose(outfile);
+	FILE *outfile;
+	outfile = fopen("out.raw", "wb");
+	if (!outfile) {
+	  fprintf(stderr, "opening outfile failed \n");
+	}
+	fwrite(buf, 1, bufsz, outfile);
+	fclose(outfile);
   
-  av_free(buf);
+	av_free(buf);
 
 
 	quit = 1;
