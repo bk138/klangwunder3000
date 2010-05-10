@@ -26,6 +26,9 @@
 uint8_t* buf;
 uint8_t* bufptr;
 
+#define INBUF_SIZE 4096
+
+
 #ifdef __MINGW32__
 #undef main /* Prevents SDL from overriding main() */
 #endif
@@ -158,6 +161,173 @@ int audio_decode_frame(AVCodecContext *aCodecCtx, uint8_t *audio_buf, int buf_si
 
 
 
+/*
+ * Audio decoding.
+ */
+void audio_decode_example(const char *outfilename, const char *filename)
+{
+  
+  
+    int out_size, size, len;
+    FILE *f, *outfile;
+    uint8_t *outbuf;
+    uint8_t inbuf[INBUF_SIZE + FF_INPUT_BUFFER_PADDING_SIZE], *inbuf_ptr;
+
+ AVFormatContext *pFormatCtx;
+  //  int             i, videoStream, audioStream;
+  int             i, audioStream;
+  AVCodecContext  *pCodecCtx;
+  AVCodec         *pCodec;
+  AVFrame         *pFrame; 
+  AVPacket        packet;
+  int             frameFinished;
+  float           aspect_ratio;
+  
+  AVCodecContext  *aCodecCtx;
+  AVCodec         *aCodec;
+
+
+    printf("Audio decoding\n");
+
+    // Register all formats and codecs
+    av_register_all();
+
+
+
+ // Open video file
+  if(av_open_input_file(&pFormatCtx, filename, NULL, 0, NULL)!=0)
+    return -1; // Couldn't open file
+  
+  // Retrieve stream information
+  if(av_find_stream_info(pFormatCtx)<0)
+    return -1; // Couldn't find stream information
+  
+  // Dump information about file onto standard error
+  dump_format(pFormatCtx, 0, filename, 0);
+  
+  // Find the first video stream
+  //videoStream=-1;
+  audioStream=-1;
+  for(i=0; i<pFormatCtx->nb_streams; i++) {
+    /*if(pFormatCtx->streams[i]->codec->codec_type==CODEC_TYPE_VIDEO &&
+      videoStream < 0) {
+      videoStream=i;
+      }*/
+    if(pFormatCtx->streams[i]->codec->codec_type==CODEC_TYPE_AUDIO &&
+       audioStream < 0) {
+      audioStream=i;
+    }
+  }
+  //  if(videoStream==-1)
+  // return -1; // Didn't find a video stream
+  if(audioStream==-1)
+    return -1;
+   
+  aCodecCtx=pFormatCtx->streams[audioStream]->codec;
+
+  aCodec = avcodec_find_decoder(aCodecCtx->codec_id);
+  if(!aCodec) {
+    fprintf(stderr, "Unsupported codec!\n");
+    return -1;
+  }
+  avcodec_open(aCodecCtx, aCodec);
+
+
+
+  printf("sample rate %d\n", aCodecCtx->sample_rate);
+  printf("channels %d\n", aCodecCtx->channels);
+  printf("duration %d\n", pFormatCtx->duration/AV_TIME_BASE + 1);
+
+  // sample_rate x seconds x channels
+  size_t bufsz = 10* aCodecCtx->sample_rate * (pFormatCtx->duration/AV_TIME_BASE + 1) * aCodecCtx->channels;
+
+  buf = av_mallocz(bufsz);
+  bufptr = buf;
+
+
+
+
+
+
+
+  
+
+    outbuf = malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE*3);
+    out_size= AVCODEC_MAX_AUDIO_FRAME_SIZE*3;
+
+    printf("outsize %d\n", out_size);
+
+    /* f = fopen(filename, "rb");
+    if (!f) {
+        fprintf(stderr, "could not open %s\n", filename);
+        exit(1);
+	}*/
+    outfile = fopen(outfilename, "wb");
+    if (!outfile) {
+      //av_free(c);
+        exit(1);
+    }
+
+
+
+
+
+
+
+
+  /* decode until eof */
+    inbuf_ptr = inbuf;
+while(av_read_frame(pFormatCtx, &packet)>=0 || !quit) {
+  
+    if(packet.stream_index==audioStream) 
+      {
+	fprintf(stderr, "got audio\n");
+
+
+        if (packet.size == 0)
+            break;
+
+        inbuf_ptr = packet.data;
+        while (packet.size > 0) {
+            len = avcodec_decode_audio2(aCodecCtx, (short *)outbuf, &out_size,
+                                       inbuf_ptr, packet.size);
+            if (len < 0) {
+                fprintf(stderr, "Error while decoding\n");
+                exit(1);
+            }
+            if (out_size > 0) {
+                /* if a frame has been decoded, output it */
+                fwrite(outbuf, 1, out_size, outfile);
+            }
+            packet.size -= len;
+            inbuf_ptr += len;
+
+	    out_size = AVCODEC_MAX_AUDIO_FRAME_SIZE*3;
+	    fprintf(stderr, "outsz %d\n", out_size);
+	    
+        }
+
+
+      }
+    else 
+      {
+	fprintf(stderr, "got sth else\n");
+	av_free_packet(&packet);
+      }
+ }
+
+
+
+
+    fclose(outfile);
+    //fclose(f);
+    free(outbuf);
+
+    //avcodec_close(c);
+    //av_free(c);
+}
+
+
 
 void audio_callback(void *userdata, Uint8 *stream, int len) {
 
@@ -225,6 +395,12 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Usage: test <file>\n");
     exit(1);
   }
+
+
+  audio_decode_example("out.raw", argv[1]);
+  exit(0);
+
+
   // Register all formats and codecs
   av_register_all();
   
