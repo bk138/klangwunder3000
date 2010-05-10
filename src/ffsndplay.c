@@ -23,8 +23,7 @@
 #include <SDL.h>
 #include <SDL_thread.h>
 
-uint8_t* buf;
-uint8_t* bufptr;
+
 
 #define INBUF_SIZE 4096
 
@@ -169,6 +168,8 @@ int audio_decode_example(const char *outfilename, const char *filename)
   int out_size, len;
   FILE *outfile;
   uint8_t *inbuf_ptr;
+  uint8_t* buf;
+  uint8_t* bufptr;
 
   AVFormatContext *pFormatCtx;
   int             i, audioStream;
@@ -177,14 +178,11 @@ int audio_decode_example(const char *outfilename, const char *filename)
   AVCodec         *aCodec;
 
 
-  printf("Audio decoding\n");
-
   // Register all formats and codecs
   av_register_all();
 
 
-
-  // Open video file
+  // Open file
   if(av_open_input_file(&pFormatCtx, filename, NULL, 0, NULL)!=0)
     return -1; // Couldn't open file
   
@@ -195,20 +193,14 @@ int audio_decode_example(const char *outfilename, const char *filename)
   // Dump information about file onto standard error
   dump_format(pFormatCtx, 0, filename, 0);
   
-  // Find the first video stream
-  //videoStream=-1;
+  // Find the first audio stream
   audioStream=-1;
-  for(i=0; i<pFormatCtx->nb_streams; i++) {
-    /*if(pFormatCtx->streams[i]->codec->codec_type==CODEC_TYPE_VIDEO &&
-      videoStream < 0) {
-      videoStream=i;
-      }*/
-    if(pFormatCtx->streams[i]->codec->codec_type==CODEC_TYPE_AUDIO &&
-       audioStream < 0) {
-      audioStream=i;
-    }
-  }
-
+  for(i=0; i<pFormatCtx->nb_streams; i++) 
+    if(pFormatCtx->streams[i]->codec->codec_type==CODEC_TYPE_AUDIO)
+      {
+	audioStream=i;
+	break;
+      }
   if(audioStream==-1)
     return -1;
    
@@ -227,20 +219,22 @@ int audio_decode_example(const char *outfilename, const char *filename)
   printf("channels %d\n", aCodecCtx->channels);
   printf("duration %ld\n", pFormatCtx->duration/AV_TIME_BASE + 1);
 
+
   // sample_rate x seconds x channels
-  size_t bufsz = 10* aCodecCtx->sample_rate * (pFormatCtx->duration/AV_TIME_BASE + 1) * aCodecCtx->channels;
+  size_t bufsz = sizeof(uint16_t) * aCodecCtx->sample_rate * (pFormatCtx->duration/AV_TIME_BASE + 2) * aCodecCtx->channels;
+  if(bufsz < AVCODEC_MAX_AUDIO_FRAME_SIZE)
+    bufsz = AVCODEC_MAX_AUDIO_FRAME_SIZE;
+
+  size_t final_len=0;
 
   buf = av_mallocz(bufsz);
   bufptr = buf;
 
 
-  
-
 
   outfile = fopen(outfilename, "wb");
   if (!outfile) {
-    //av_free(c);
-    exit(1);
+    return -1;
   }
 
 
@@ -251,8 +245,6 @@ int audio_decode_example(const char *outfilename, const char *filename)
     if(packet.stream_index==audioStream) 
       {
 	//fprintf(stderr, "got audio\n");
-
-
         if (packet.size == 0)
 	  break;
 
@@ -268,11 +260,10 @@ int audio_decode_example(const char *outfilename, const char *filename)
 	  }
 	  if (out_size > 0) {
 	    bufptr += out_size;
+	    final_len += out_size;
 	  }
 	  packet.size -= len;
 	  inbuf_ptr += len;
-	  //fprintf(stderr, "outsz %d\n", out_size);
-	    
         }
 
 	av_free_packet(&packet);
@@ -284,22 +275,16 @@ int audio_decode_example(const char *outfilename, const char *filename)
       }
   }
 
+  printf("final len %ld\n", final_len);
 
   fwrite(buf, 1, bufsz, outfile);
-
-
   fclose(outfile);
-  //fclose(f);
-  //  av_free(outbuf);
-
 
   // Close the codec
   avcodec_close(aCodecCtx);
-  
+   
   // Close the video file
   av_close_input_file(pFormatCtx);
-
-  //av_free(c);
 
   return 0;
 }
@@ -333,8 +318,8 @@ void audio_callback(void *userdata, Uint8 *stream, int len) {
       len1 = len;
     memcpy(stream, (uint8_t *)audio_buf + audio_buf_index, len1);
     //
-    memcpy(bufptr, (uint8_t *)audio_buf + audio_buf_index, len1);
-    bufptr += len1;
+    //memcpy(bufptr, (uint8_t *)audio_buf + audio_buf_index, len1);
+    //bufptr += len1;
     //
     len -= len1;
     stream += len1;
@@ -487,8 +472,8 @@ int main(int argc, char *argv[]) {
   // sample_rate x seconds x channels
   size_t bufsz = 10* aCodecCtx->sample_rate * (pFormatCtx->duration/AV_TIME_BASE + 1) * aCodecCtx->channels;
 
-  buf = av_mallocz(bufsz);
-  bufptr = buf;
+  //buf = av_mallocz(bufsz);
+  //bufptr = buf;
 
   // Read frames and save first five frames to disk
   i=0;
@@ -560,10 +545,10 @@ int main(int argc, char *argv[]) {
 	if (!outfile) {
 	  fprintf(stderr, "opening outfile failed \n");
 	}
-	fwrite(buf, 1, bufsz, outfile);
+	//fwrite(buf, 1, bufsz, outfile);
 	fclose(outfile);
   
-	av_free(buf);
+	//av_free(buf);
 
 
 	quit = 1;
@@ -581,10 +566,10 @@ int main(int argc, char *argv[]) {
   if (!outfile) {
     fprintf(stderr, "opening outfile failed \n");
   }
-  fwrite(buf, 1, bufsz, outfile);
+  //fwrite(buf, 1, bufsz, outfile);
   fclose(outfile);
   
-  av_free(buf);
+  //av_free(buf);
 
 
   fprintf(stderr, "bye, quit was %d \n", quit);
