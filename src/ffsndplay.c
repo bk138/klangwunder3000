@@ -168,7 +168,6 @@ int audio_decode_example(const char *outfilename, const char *filename)
 {
   int out_size, len;
   FILE *outfile;
-  uint8_t *outbuf;
   uint8_t *inbuf_ptr;
 
   AVFormatContext *pFormatCtx;
@@ -209,8 +208,7 @@ int audio_decode_example(const char *outfilename, const char *filename)
       audioStream=i;
     }
   }
-  //  if(videoStream==-1)
-  // return -1; // Didn't find a video stream
+
   if(audioStream==-1)
     return -1;
    
@@ -236,17 +234,7 @@ int audio_decode_example(const char *outfilename, const char *filename)
   bufptr = buf;
 
 
-
-
-
-
-
   
-
-  outbuf = av_malloc(AVCODEC_MAX_AUDIO_FRAME_SIZE*3);
-  out_size= AVCODEC_MAX_AUDIO_FRAME_SIZE*3;
-
-  printf("outsize %d\n", out_size);
 
 
   outfile = fopen(outfilename, "wb");
@@ -254,11 +242,6 @@ int audio_decode_example(const char *outfilename, const char *filename)
     //av_free(c);
     exit(1);
   }
-
-
-
-
-
 
 
 
@@ -275,27 +258,24 @@ int audio_decode_example(const char *outfilename, const char *filename)
 
         inbuf_ptr = packet.data;
         while (packet.size > 0) {
-	  len = avcodec_decode_audio2(aCodecCtx, (short *)outbuf, &out_size,
+
+	  out_size = bufsz; // reset this as it gets sets by avcodec_decode_audio2()
+	  len = avcodec_decode_audio2(aCodecCtx, (short*)bufptr, &out_size,
 				      inbuf_ptr, packet.size);
 	  if (len < 0) {
 	    fprintf(stderr, "Error while decoding\n");
 	    exit(1);
 	  }
 	  if (out_size > 0) {
-	    /* if a frame has been decoded, output it */
-	    //fwrite(outbuf, 1, out_size, outfile);
-	    memcpy(bufptr, outbuf, out_size);
 	    bufptr += out_size;
 	  }
 	  packet.size -= len;
 	  inbuf_ptr += len;
-
-	  out_size = AVCODEC_MAX_AUDIO_FRAME_SIZE*3;
 	  //fprintf(stderr, "outsz %d\n", out_size);
 	    
         }
 
-
+	av_free_packet(&packet);
       }
     else 
       {
@@ -310,7 +290,7 @@ int audio_decode_example(const char *outfilename, const char *filename)
 
   fclose(outfile);
   //fclose(f);
-  av_free(outbuf);
+  //  av_free(outbuf);
 
 
   // Close the codec
