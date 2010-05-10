@@ -1,12 +1,15 @@
 
 #include <iostream>
+#include <fstream> //FIXME
 #include <memory>
 
-#include "ffmpeg/avcodec.h"
-#include "ffmpeg/avformat.h"
 #include "wx/fileconf.h"
 #include "wx/mstream.h"
 #include "wx/intl.h"
+extern "C" {
+#include "avcodec.h"
+#include "avformat.h"
+}
 
 #include "Klangset.h"
 #include "KW3KApp.h"
@@ -30,6 +33,9 @@ using namespace std;
 static inline size_t lRand(size_t limit);
 
 
+/*******************************************
+ *  Klang
+ *******************************************/
 
 
 // initialise primitive datatypes
@@ -42,10 +48,154 @@ Klang::Klang()
   loops_min = 0;
   loops_max = 0;
 
-  sound = 0;
+  snd_buf = 0;
 }
 
 
+
+bool Klang::loadSnd(vector<char>& src)
+{
+  fprintf(stderr, "read %lu bytes\n", src.size());
+
+  const char* outfilename = "out.raw";
+  const char* tmpfile = "/tmp/tmp.ogg";
+
+  // FIXME save it to tmp file
+  ofstream file(tmpfile);
+  for(vector<char>::iterator it = src.begin(); it != src.end(); ++it)
+    file << *it;
+
+
+  int out_size, len;
+  FILE *outfile;
+  uint8_t *inbuf_ptr;
+  uint8_t *outbuf_ptr;
+
+  AVFormatContext *pFormatCtx;
+  int             audioStream;
+  AVCodecContext  *aCodecCtx;
+  AVCodec         *aCodec;
+
+
+
+  // Open file
+  if(av_open_input_file(&pFormatCtx, tmpfile, NULL, 0, NULL)!=0)
+    return false;
+
+  
+  
+  // Retrieve stream information
+  if(av_find_stream_info(pFormatCtx)<0)
+    return false;
+  
+  // Dump information about file onto standard error
+  dump_format(pFormatCtx, 0, tmpfile, 0);
+  
+  // Find the first audio stream
+  audioStream=-1;
+  for(size_t i=0; i<pFormatCtx->nb_streams; i++) 
+    if(pFormatCtx->streams[i]->codec->codec_type==CODEC_TYPE_AUDIO)
+      {
+	audioStream=i;
+	break;
+      }
+  if(audioStream==-1)
+    return false;
+   
+  aCodecCtx=pFormatCtx->streams[audioStream]->codec;
+
+  aCodec = avcodec_find_decoder(aCodecCtx->codec_id);
+  if(!aCodec) {
+    fprintf(stderr, "Unsupported codec!\n");
+    return false;
+  }
+  avcodec_open(aCodecCtx, aCodec);
+
+
+
+  printf("sample rate %d\n", aCodecCtx->sample_rate);
+  printf("channels %d\n", aCodecCtx->channels);
+  printf("duration %ld\n", pFormatCtx->duration/AV_TIME_BASE + 1);
+
+
+  // sample_rate x seconds x channels
+  size_t bufsz = sizeof(uint16_t) * aCodecCtx->sample_rate * (pFormatCtx->duration/AV_TIME_BASE + 2) * aCodecCtx->channels;
+  if(bufsz < AVCODEC_MAX_AUDIO_FRAME_SIZE)
+    bufsz = AVCODEC_MAX_AUDIO_FRAME_SIZE;
+
+  size_t final_len=0;
+
+  snd_buf = (uint8_t*)av_mallocz(bufsz);
+  outbuf_ptr = snd_buf;
+
+
+  //FIXME
+  outfile = fopen(outfilename, "wb");
+  if (!outfile) {
+    return false;
+  }
+
+
+
+  /* decode until eof */
+  AVPacket        packet;
+  while(av_read_frame(pFormatCtx, &packet)>=0) 
+    {
+      if(packet.stream_index==audioStream) 
+	{
+	  //fprintf(stderr, "got audio\n");
+	  if (packet.size == 0)
+	    break;
+
+	  inbuf_ptr = packet.data;
+	  while (packet.size > 0) {
+
+	    out_size = bufsz; // reset this as it gets sets by avcodec_decode_audio2()
+	    len = avcodec_decode_audio2(aCodecCtx, (short*)outbuf_ptr, &out_size,
+					inbuf_ptr, packet.size);
+	    if (len < 0) {
+	      fprintf(stderr, "Error while decoding\n");
+	      exit(1);
+	    }
+	    if (out_size > 0) {
+	      outbuf_ptr += out_size;
+	      final_len += out_size;
+	    }
+	    packet.size -= len;
+	    inbuf_ptr += len;
+	  }
+
+	  av_free_packet(&packet);
+	}
+      else 
+	{
+	  fprintf(stderr, "got sth else\n");
+	  av_free_packet(&packet);
+	}
+    }
+
+  printf("final len %ld\n", final_len);
+
+  fwrite(snd_buf, 1, bufsz, outfile);
+  fclose(outfile);
+
+  // Close the codec
+  avcodec_close(aCodecCtx);
+   
+  // Close the video file
+  av_close_input_file(pFormatCtx);
+
+
+  return true;
+}
+
+
+
+
+
+/*******************************************
+ *  Klangset
+ *******************************************/
 
 
 // initialise primitive datatypes
@@ -60,38 +210,6 @@ Klangset::Klangset()
 
 
 
-/*
-  Uint8			*buffer;
-  int			result;
- 
-  SDL_RWops		*rw;
-
- 
- 
- 
-  rw = SDL_RWFromMem(buffer, info.uncompressed_size);
-  if(!rw) {
-  printf("Error with SDL_RWFromMem: %s\n", SDL_GetError() );
-  exit(EXIT_FAILURE);
-  }
- 
-  // The function that does the loading doesn't change at all 
-  bmp = SDL_LoadBMP_RW(rw, 0);
-  if(!bmp) {
-  printf("Error loading to SDL_Surface: %s\n", SDL_GetError() );
-  exit(EXIT_FAILURE);
-  }
- 
-  // Clean up after ourselves 
-  free(buffer);
-  SDL_FreeRW(rw);
-  unzClose(zip);
- 
-  return(0);
-  }
-*/
-
-
 
 bool Klangset::loadFile(const wxString& path)
 {
@@ -104,14 +222,14 @@ bool Klangset::loadFile(const wxString& path)
     }
 
 
-  vector<char> buf;
+  vector<char> cfgfile_buf;
 
-  if(! fileFromZip(archive, wxT(KLW_CFGFILE), &buf))
+  if(! fileFromZip(archive, wxT(KLW_CFGFILE), &cfgfile_buf))
     return false;
 
   // create a memory input stream out of the buffer
   // and use it to create a wxFileConfig object
-  wxMemoryInputStream cfgstrm(&buf[0], buf.size());
+  wxMemoryInputStream cfgstrm(&cfgfile_buf[0], cfgfile_buf.size());
   wxFileConfig cfg(cfgstrm);
 
   
@@ -208,6 +326,20 @@ bool Klangset::loadFile(const wxString& path)
 	  return false;
 	}
 
+      // load associated file into buffer
+      vector<char> sndfile_buf;
+      if(! fileFromZip(archive, k.filename, &sndfile_buf))
+	{
+	  err.Printf(_("Could not read associated sound file of klang '%s'.\n"), klangs[i].c_str());
+	  return false;
+	}
+
+      if(! k.loadSnd(sndfile_buf))
+	{
+	  err.Printf(_("Could not decode sound file of klang '%s'.\n"), klangs[i].c_str());
+	  return false;
+	}
+      
       // all fine, add it
       push_back(k);
       }

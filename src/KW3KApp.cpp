@@ -4,6 +4,10 @@
 */
 
 #include <iostream>
+extern "C" {
+#include "avcodec.h"
+#include "avformat.h"
+}
 
 #include "KW3KApp.h"
 #include "gui/MyFrameMain.h"
@@ -31,6 +35,9 @@ bool KW3KApp::OnInit()
   cout << "\n:::  klangwunder3000 welcomes you!  :::\n\n";
   cout << COPYRIGHT << ".\n";
   cout << "klangwunder3000 is free software, licensed unter the GPL.\n\n";
+
+  // register all libavformat formats and codecs
+  av_register_all();
 
   // wx stuff
   wxInitAllImageHandlers();
@@ -66,4 +73,6 @@ bool KW3KApp::setLocale(int language)
                                                                                                                        
   // Initialize the catalogs we'll be using                                                                          
   locale->AddCatalog(wxT("klangwunder3000"));  
+  
+  return true;
 }

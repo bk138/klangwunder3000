@@ -9,7 +9,6 @@ AM_CPPFLAGS = \
 	 -Wall \
 	 -g \
 	$(WX_CXXFLAGS) \
-	$(libavcodec_CFLAGS) \
 	$(libavformat_CFLAGS) \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
@@ -51,9 +50,8 @@ EXTRA_DIST = \
 klangwunder3000_LDFLAGS = 
 
 klangwunder3000_LDADD = \
-	$(WX_LIBS) \
-	$(libavcodec_LIBS) \
-	$(libavformat_LIBS)
+	$(libavformat_LIBS) \
+	$(WX_LIBS) 
 
 
 

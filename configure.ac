@@ -82,7 +82,6 @@ fi
 
 
 # check libs for reading in audio
-PKG_CHECK_MODULES(libavcodec, libavcodec)
 PKG_CHECK_MODULES(libavformat, libavformat)
 
 
@@ -103,8 +102,6 @@ AC_SUBST(WX_CPPFLAGS)
 AC_SUBST(WX_CXXFLAGS)
 AC_SUBST(WX_LIBS)
 AC_SUBST(WX_RESCOMP)
-AC_SUBST(libavcodec_CFLAGS)
-AC_SUBST(libavcodec_LIBS)
 AC_SUBST(libavformat_CFLAGS)
 AC_SUBST(libavformat_LIBS)
 

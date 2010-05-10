@@ -21,9 +21,12 @@ struct Klang
   size_t loops_max;
   wxString filename;
   wxString name;
-  void *sound;
+
+  uint8_t *snd_buf;
 
   Klang();
+
+  bool loadSnd(std::vector<char>& src);
 };
 
 
@@ -34,6 +37,7 @@ class Klangset: public std::deque<Klang>
 
   bool fileFromZip(wxFileInputStream& filestrm, wxString filename, std::vector<char>* dest);
   bool fileToZip(wxZipOutputStream* zipstrm, wxString filename, std::vector<char>& src);
+
 
  public:
   wxString name;
