@@ -60,6 +60,14 @@ MyFrameMain::MyFrameMain(wxWindow* parent, int id, const wxString& title,
 
   
   /*
+    and disable buttons
+  */
+  button_add->Enable(false);
+  button_remove->Enable(false);
+  button_info->Enable(false);
+
+
+  /*
     setup of the grid
   */
 
@@ -103,14 +111,20 @@ void MyFrameMain::klangset_new(wxCommandEvent &event)
 	dir = wxFileName::GetHomeDir();
       wxGetApp().ks_now_path = dir + wxFileName::GetPathSeparator() + wxGetApp().ks_now->name + wxT(".klw");
 
-
+      /*
+	enable menu items
+      */
       // this is "Save"
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(2)->Enable(true);
       // "Save as"
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(3)->Enable(true);
-
       // "add klang
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(0)->Enable(true);
+
+      /*
+	and enable button
+      */
+      button_add->Enable(true);
 
       SetTitle(wxT("Klangwunder3000 - ") + wxGetApp().ks_now->name + 
 	       wxString(wxT(" v. ")) << wxGetApp().ks_now->version);
@@ -169,12 +183,23 @@ void MyFrameMain::openKlangset(wxString& path)
 
       SetTitle(wxT("Klangwunder3000 - ") + wxGetApp().ks_now->name + 
 	       wxString(wxT(" version ")) << wxGetApp().ks_now->version);
+
+
+      /*
+	enable menu items
+      */
       // this is "Save"
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(2)->Enable(true);
       // "Save as"
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(3)->Enable(true);
       // "add klang
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(0)->Enable(true);
+
+      /*
+	and enable buttons
+      */
+      button_add->Enable(true);
+
    
       // enable "remove klang" && "info on klang"
       // and update the grid ...
@@ -185,7 +210,9 @@ void MyFrameMain::openKlangset(wxString& path)
 	  frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))
 	    ->FindItemByPosition(2)->Enable(true);
 
-	  
+	  button_remove->Enable(true);
+	  button_info->Enable(true);
+
 	  // show it
 	  grid_klangs->AppendRows(wxGetApp().ks_now->size()); 
 	  klangset2grid(0, wxGetApp().ks_now->size());        
@@ -339,6 +366,8 @@ void MyFrameMain::klang_add(wxCommandEvent &event)
       // there's sth. to remove or get info on now
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(1)->Enable(true);
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(2)->Enable(true);
+      button_remove->Enable(true);
+      button_info->Enable(true);
     }
 }
 
@@ -367,6 +396,8 @@ void MyFrameMain::klang_remove(wxCommandEvent &event)
     {
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(1)->Enable(false);
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(2)->Enable(false);
+      button_remove->Enable(false);
+      button_info->Enable(false);
     }
 }
 
