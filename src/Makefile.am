@@ -22,6 +22,7 @@ klangwunder3000_SOURCES = \
 	KW3KApp.h  \
 	Klangset.cpp \
 	Klangset.h \
+	gui/evtids.h \
 	gui/FrameMain.cpp \
 	gui/FrameMain.h \
 	gui/MyFrameMain.cpp \
@@ -30,6 +31,7 @@ klangwunder3000_SOURCES = \
 	gui/res/about.png.h \
 	gui/res/add.png.h \
 	gui/res/info.png.h \
+	gui/res/playklang.png.h \
 	gui/res/pause.png.h \
 	gui/res/play.png.h \
 	gui/res/remove.png.h \
@@ -43,6 +45,7 @@ EXTRA_DIST = \
 	gui/res/about.png \
 	gui/res/add.png \
 	gui/res/info.png \
+	gui/res/playklang.png \
 	gui/res/pause.png \
 	gui/res/play.png \
 	gui/res/remove.png \
