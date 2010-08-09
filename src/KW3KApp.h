@@ -12,7 +12,7 @@
 
 
 #define VERSION "0.1"
-#define COPYRIGHT "Copyright (C) 2007 Christian Beier <dontmind@freeshell.org>"
+#define COPYRIGHT "Copyright (C) 2007-2010 Christian Beier <dontmind@freeshell.org>"
 
 
 class KW3KApp: public wxApp 
