@@ -49,7 +49,12 @@ Klang::Klang()
   loops_min = 0;
   loops_max = 0;
 
-  snd_buf = 0;
+  alGenBuffers(1, &al_buffer);
+}
+
+Klang::~Klang()
+{
+  alDeleteBuffers(1, &al_buffer);
 }
 
 
@@ -84,7 +89,6 @@ bool Klang::loadSnd(vector<char>& src)
     fputc(*it, tmpfile);
   close(fd);
   
-
   int out_size, len;
   uint8_t *inbuf_ptr;
   uint8_t *outbuf_ptr;
@@ -155,10 +159,8 @@ bool Klang::loadSnd(vector<char>& src)
     bufsz = AVCODEC_MAX_AUDIO_FRAME_SIZE;
 
   size_t final_len=0;
-
-  snd_buf = (uint8_t*)av_mallocz(bufsz);
-  outbuf_ptr = snd_buf;
-
+  uint8_t *buf = (uint8_t*)av_mallocz(bufsz);
+  outbuf_ptr = buf;
 
   // decode until eof 
   AVPacket        packet;
@@ -179,6 +181,7 @@ bool Klang::loadSnd(vector<char>& src)
 	      if (len < 0) 
 		{
 		  err.Printf(_("Error while decoding."));
+		  avcodec_close(aCodecCtx);
 		  av_close_input_file(pFormatCtx);
 		  unlink(tmpfilename);
 		  return false;
@@ -198,16 +201,50 @@ bool Klang::loadSnd(vector<char>& src)
 	av_free_packet(&packet);
 
     }
+  
+  // copy the data into an openal buffer
+  alBufferData(al_buffer, AL_FORMAT_STEREO16, buf, bufsz, aCodecCtx->sample_rate);
+  if(alGetError() != AL_NO_ERROR)
+    {
+      err.Printf(_("Error creating AL buffer: "));
+      err += wxString(alGetString(alGetError()), wxConvUTF8);
+      avcodec_close(aCodecCtx);
+      av_close_input_file(pFormatCtx);
+      unlink(tmpfilename);
+      return false;
+    }
 
   // Close the codec
   avcodec_close(aCodecCtx);
-  
   // Close the input file
   av_close_input_file(pFormatCtx);
-
-  // delete it
+  // and delete it
   unlink(tmpfilename);
- 
+
+  return true;
+}
+
+
+bool Klang::playSnd()
+{
+  if(al_buffer == AL_NONE)
+    return false;
+
+  // Generate a single source, attach the buffer to it and start playing. 
+  ALuint source;
+  alGenSources (1, &source);
+  alSourcei (source, AL_BUFFER, al_buffer);
+  alSourcePlay (source);
+
+  // Normally nothing should go wrong above, but one never knows...
+  ALenum error = alGetError ();
+  if (error != ALUT_ERROR_NO_ERROR)
+    {
+      err.Printf(_("Error playing AL buffer: "));
+      err += wxString(alGetString(error), wxConvUTF8);
+      return false;
+    }
+
   return true;
 }
 

@@ -9,12 +9,13 @@
 #include "wx/string.h"
 #include "wx/wfstream.h"
 #include "wx/zipstrm.h"
+#include "AL/alut.h"
+
 
 
 struct Klang
 {
   wxString err;
-  uint8_t *snd_buf;
 
 public:
   double p_init;
@@ -26,10 +27,13 @@ public:
   wxString filename;
   wxString name;
 
+  ALuint al_buffer;
+
   Klang();
+  ~Klang();
 
   bool loadSnd(std::vector<char>& src);
-  const uint8_t* getSndBuf() const { return snd_buf; };
+  bool playSnd(); // simply plays the sound for debug purposes
   const wxString& getErr() const { const wxString& ref = err; return ref; };
 };
 
