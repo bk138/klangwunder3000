@@ -13,6 +13,10 @@
 
 struct Klang
 {
+  wxString err;
+  uint8_t *snd_buf;
+
+public:
   double p_init;
   double p_incr;
   double p_decr;
@@ -22,11 +26,11 @@ struct Klang
   wxString filename;
   wxString name;
 
-  uint8_t *snd_buf;
-
   Klang();
 
   bool loadSnd(std::vector<char>& src);
+  const uint8_t* getSndBuf() const { return snd_buf; };
+  const wxString& getErr() const { const wxString& ref = err; return ref; };
 };
 
 
