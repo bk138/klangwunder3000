@@ -81,8 +81,9 @@ if test "$HOST_IS_DARWIN" = "yes"; then
 fi
 
 
-# check libs for reading in audio
-PKG_CHECK_MODULES(libavformat, libavformat)
+# check libs for reading and playing audio
+PKG_CHECK_MODULES(AVFORMAT, libavformat)
+PKG_CHECK_MODULES(OPENAL, openal)
 
 
 dnl gdb under windows does backtraces only with stabs format?
