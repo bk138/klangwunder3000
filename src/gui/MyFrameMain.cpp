@@ -429,10 +429,16 @@ void MyFrameMain::klang_info(wxCommandEvent &event)
     return;
 
   wxString name = wxGetApp().ks_now->at(pos).name;
-  wxString iname = wxGetApp().ks_now->at(pos).filename;
+  wxString filename = wxGetApp().ks_now->at(pos).filename;
+  wxString duration = wxString::Format(wxT("%4.2f"), wxGetApp().ks_now->at(pos).getDuration()) + wxT(" s");
+  wxString channels = wxString()<< wxGetApp().ks_now->at(pos).getChannels();
+  wxString samplerate = wxString() << wxGetApp().ks_now->at(pos).getSampleRate();
 
-  wxMessageBox(  _("Name:              ") + name + wxT("\n") 
-	       + _("Internal name: ") + iname,
+  wxMessageBox(_("Name:              ") + name + wxT("\n") +
+	       _("Internal name: ") + filename + wxT("\n") +
+	       _("Duration: ") + duration + wxT("\n") +
+	       _("Channels: ") + channels + wxT("\n") +
+	       _("Sample Rate: ") + samplerate,
 	       _("Info on Klang"),
 	       wxOK | wxICON_INFORMATION,
 	       this);

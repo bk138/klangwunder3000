@@ -48,7 +48,7 @@ Klang::Klang()
   p_now = 0;
   loops_min = 0;
   loops_max = 0;
-
+  
   data_buffer = 0;
   data_buffer_len = 0;
   alGenBuffers(1, &al_buffer);
@@ -197,12 +197,6 @@ bool Klang::loadSnd(vector<char>& src)
     }
   avcodec_open(aCodecCtx, aCodec);
 
-
-  printf("sample rate %d\n", aCodecCtx->sample_rate);
-  printf("channels %d\n", aCodecCtx->channels);
-  printf("duration %ld\n", pFormatCtx->duration/AV_TIME_BASE + 1);
-
-
   // sample_rate x seconds x channels
   data_buffer_len = sizeof(uint16_t) * aCodecCtx->sample_rate * (pFormatCtx->duration/AV_TIME_BASE + 2) * aCodecCtx->channels;
   if(data_buffer_len < AVCODEC_MAX_AUDIO_FRAME_SIZE)
@@ -307,6 +301,52 @@ bool Klang::playSnd()
   //  alDeleteSources (1, &source);
 
   return status;
+}
+
+
+
+float Klang::getDuration() const
+{
+  if(alIsBuffer(al_buffer))
+    {
+      int channels, bits, freq, size;
+      alGetBufferi(al_buffer, AL_CHANNELS, &channels);
+      alGetBufferi(al_buffer, AL_BITS, &bits);
+      alGetBufferi(al_buffer, AL_FREQUENCY, &freq);
+      alGetBufferi(al_buffer, AL_SIZE, &size);
+
+      float duration = (((float)size / ((float)bits/8.0)) / (float)channels) / (float)freq;
+      return duration;
+    }
+  else
+    return 0;
+}
+
+
+
+int Klang::getSampleRate() const
+{
+  if(alIsBuffer(al_buffer))
+    {
+      int freq;
+      alGetBufferi(al_buffer, AL_FREQUENCY, &freq);
+      return freq;
+    }
+  else
+    return 0;
+}
+
+
+int Klang::getChannels() const
+{
+  if(alIsBuffer(al_buffer))
+    {
+      int channels;
+      alGetBufferi(al_buffer, AL_CHANNELS, &channels);
+      return channels;
+    }
+  else
+    return 0;
 }
 
 
