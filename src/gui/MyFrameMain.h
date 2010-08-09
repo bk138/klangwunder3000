@@ -46,6 +46,7 @@ public:
   void klang_add(wxCommandEvent &event);
   void klang_remove(wxCommandEvent &event); 
   void klang_info(wxCommandEvent &event); 
+  void klang_play(wxCommandEvent &event); 
 
   void help_about(wxCommandEvent &event);
 

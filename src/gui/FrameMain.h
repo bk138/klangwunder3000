@@ -16,7 +16,9 @@
 #ifndef ICON_XPM
 #define ICON_XPM
 #include "res/klangwunder3000.xpm"
+#include "evtids.h"
 #endif
+#include "res/playklang.png.h"
 #include "res/info.png.h"
 #include "res/remove.png.h"
 #include "res/add.png.h"
@@ -52,6 +54,7 @@ protected:
     wxBitmapButton* button_add;
     wxBitmapButton* button_remove;
     wxBitmapButton* button_info;
+    wxBitmapButton* button_playklang;
     wxStaticText* label_channels;
     wxSpinCtrl* spin_ctrl_channels;
     wxGrid* grid_klangs;
@@ -70,6 +73,7 @@ public:
     virtual void klang_add(wxCommandEvent &event); // wxGlade: <event_handler>
     virtual void klang_remove(wxCommandEvent &event); // wxGlade: <event_handler>
     virtual void klang_info(wxCommandEvent &event); // wxGlade: <event_handler>
+    virtual void klang_play(wxCommandEvent &event); // wxGlade: <event_handler>
     virtual void help_contents(wxCommandEvent &event); // wxGlade: <event_handler>
     virtual void help_about(wxCommandEvent &event); // wxGlade: <event_handler>
     virtual void klangset_play(wxCommandEvent &event); // wxGlade: <event_handler>

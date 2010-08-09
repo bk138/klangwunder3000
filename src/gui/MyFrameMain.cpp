@@ -57,6 +57,8 @@ MyFrameMain::MyFrameMain(wxWindow* parent, int id, const wxString& title,
   frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(1)->Enable(false);
   // "info on klang"
   frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(2)->Enable(false);
+  // "play klang"
+  frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(3)->Enable(false);
 
   
   /*
@@ -65,6 +67,7 @@ MyFrameMain::MyFrameMain(wxWindow* parent, int id, const wxString& title,
   button_add->Enable(false);
   button_remove->Enable(false);
   button_info->Enable(false);
+  button_playklang->Enable(false);
 
 
   /*
@@ -209,9 +212,12 @@ void MyFrameMain::openKlangset(wxString& path)
 	    ->FindItemByPosition(1)->Enable(true);
 	  frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))
 	    ->FindItemByPosition(2)->Enable(true);
+	  frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))
+	    ->FindItemByPosition(3)->Enable(true);
 
 	  button_remove->Enable(true);
 	  button_info->Enable(true);
+	  button_playklang->Enable(true);
 
 	  // show it
 	  grid_klangs->AppendRows(wxGetApp().ks_now->size()); 
@@ -363,11 +369,13 @@ void MyFrameMain::klang_add(wxCommandEvent &event)
       grid_klangs->InsertRows(pos); // new row
       klangset2grid(pos);           // fill it
 
-      // there's sth. to remove or get info on now
+      // there's sth. to remove or get info on or to play now
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(1)->Enable(true);
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(2)->Enable(true);
+      frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(3)->Enable(true);
       button_remove->Enable(true);
       button_info->Enable(true);
+      button_playklang->Enable(true);
     }
 }
 
@@ -391,13 +399,15 @@ void MyFrameMain::klang_remove(wxCommandEvent &event)
   wxGetApp().ks_now->erase(wxGetApp().ks_now->begin() + pos);
   grid_klangs->DeleteRows(pos);   
 
-  // disable "remove" and "info" if nothing left
+  // disable "remove", "info" and "play" if nothing left
   if(wxGetApp().ks_now->size() < 1)
     {
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(1)->Enable(false);
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(2)->Enable(false);
+      frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(3)->Enable(false);
       button_remove->Enable(false);
       button_info->Enable(false);
+      button_playklang->Enable(false);
     }
 }
 
@@ -426,6 +436,24 @@ void MyFrameMain::klang_info(wxCommandEvent &event)
 	       _("Info on Klang"),
 	       wxOK | wxICON_INFORMATION,
 	       this);
+}
+
+
+
+void MyFrameMain::klang_play(wxCommandEvent &event)
+{
+  if(!wxGetApp().ks_now)
+    return;
+
+  if(!wxGetApp().ks_now->size())
+    return;
+
+  int pos = grid_klangs->GetGridCursorRow();
+  if(pos < 0) // invalid position
+    return;
+
+  if(!wxGetApp().ks_now->at(pos).playSnd())
+    wxLogError(wxGetApp().ks_now->at(pos).getErr());
 }
 
 

@@ -16,6 +16,8 @@
 struct Klang
 {
   wxString err;
+  uint8_t* data_buffer;
+  size_t data_buffer_len;
 
 public:
   double p_init;
@@ -31,6 +33,7 @@ public:
 
   Klang();
   ~Klang();
+  Klang(const Klang& k);
 
   bool loadSnd(std::vector<char>& src);
   bool playSnd(); // simply plays the sound for debug purposes

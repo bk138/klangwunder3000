@@ -24,9 +24,10 @@ FrameMain::FrameMain(wxWindow* parent, int id, const wxString& title, const wxPo
     wxglade_tmp_menu_1->Append(wxID_EXIT, _("E&xit"), _("Exit Klangwunder3000."), wxITEM_NORMAL);
     frame_main_menubar->Append(wxglade_tmp_menu_1, _("&File"));
     wxMenu* wxglade_tmp_menu_2 = new wxMenu();
-    wxglade_tmp_menu_2->Append(wxID_ADD, _("&Add Klang"), _("Add a Klang."), wxITEM_NORMAL);
-    wxglade_tmp_menu_2->Append(wxID_REMOVE, _("&Remove Klang"), _("Remove a Klang."), wxITEM_NORMAL);
-    wxglade_tmp_menu_2->Append(wxID_PROPERTIES, _("&Info on Klang"), _("Information on a Klang."), wxITEM_NORMAL);
+    wxglade_tmp_menu_2->Append(wxID_ADD, _("&Add klang"), _("Add a klang."), wxITEM_NORMAL);
+    wxglade_tmp_menu_2->Append(wxID_REMOVE, _("&Remove klang"), _("Remove a klang."), wxITEM_NORMAL);
+    wxglade_tmp_menu_2->Append(wxID_PROPERTIES, _("&Info on klang"), _("Information on a klang."), wxITEM_NORMAL);
+    wxglade_tmp_menu_2->Append(ID_PLAYKLANG, _("&Play klang"), _("Play a single klang."), wxITEM_NORMAL);
     frame_main_menubar->Append(wxglade_tmp_menu_2, _("&Edit"));
     wxMenu* wxglade_tmp_menu_3 = new wxMenu();
     wxglade_tmp_menu_3->Append(wxID_HELP, _("&Contents"), _("Show Klangwunder3000 Help."), wxITEM_NORMAL);
@@ -41,6 +42,7 @@ FrameMain::FrameMain(wxWindow* parent, int id, const wxString& title, const wxPo
     button_add = new wxBitmapButton(panel_top, wxID_ADD, (bitmapFromMem(add_png)));
     button_remove = new wxBitmapButton(panel_top, wxID_REMOVE, (bitmapFromMem(remove_png)));
     button_info = new wxBitmapButton(panel_top, wxID_PROPERTIES, (bitmapFromMem(info_png)));
+    button_playklang = new wxBitmapButton(panel_top, ID_PLAYKLANG, (bitmapFromMem(playklang_png)));
     label_channels = new wxStaticText(panel_top, wxID_ANY, _("Channels"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE);
     spin_ctrl_channels = new wxSpinCtrl(panel_top, wxID_ANY, wxT(""), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 11);
     grid_klangs = new wxGrid(panel_grid, wxID_ANY);
@@ -61,6 +63,7 @@ BEGIN_EVENT_TABLE(FrameMain, wxFrame)
     EVT_MENU(wxID_ADD, FrameMain::klang_add)
     EVT_MENU(wxID_REMOVE, FrameMain::klang_remove)
     EVT_MENU(wxID_PROPERTIES, FrameMain::klang_info)
+    EVT_MENU(ID_PLAYKLANG, FrameMain::klang_play)
     EVT_MENU(wxID_HELP, FrameMain::help_contents)
     EVT_MENU(wxID_ABOUT, FrameMain::help_about)
     EVT_BUTTON(wxID_ANY, FrameMain::klangset_play)
@@ -68,6 +71,7 @@ BEGIN_EVENT_TABLE(FrameMain, wxFrame)
     EVT_BUTTON(wxID_ADD, FrameMain::klang_add)
     EVT_BUTTON(wxID_REMOVE, FrameMain::klang_remove)
     EVT_BUTTON(wxID_PROPERTIES, FrameMain::klang_info)
+    EVT_BUTTON(ID_PLAYKLANG, FrameMain::klang_play)
     // end wxGlade
 END_EVENT_TABLE();
 
@@ -128,6 +132,13 @@ void FrameMain::klang_info(wxCommandEvent &event)
 }
 
 
+void FrameMain::klang_play(wxCommandEvent &event)
+{
+    event.Skip();
+    wxLogDebug(wxT("Event handler (FrameMain::klang_play) not implemented yet")); //notify the user that he hasn't implemented the event handler yet
+}
+
+
 void FrameMain::help_contents(wxCommandEvent &event)
 {
     event.Skip();
@@ -181,12 +192,14 @@ void FrameMain::set_properties()
     button_pause->SetToolTip(_("Pause"));
     button_pause->SetSize(button_pause->GetBestSize());
     slider_vol->SetToolTip(_("Change volume"));
-    button_add->SetToolTip(_("Add Klang"));
+    button_add->SetToolTip(_("Add klang"));
     button_add->SetSize(button_add->GetBestSize());
-    button_remove->SetToolTip(_("Remove Klang"));
+    button_remove->SetToolTip(_("Remove klang"));
     button_remove->SetSize(button_remove->GetBestSize());
-    button_info->SetToolTip(_("Information on this Klang"));
+    button_info->SetToolTip(_("Information on this klang"));
     button_info->SetSize(button_info->GetBestSize());
+    button_playklang->SetToolTip(_("Play this klang"));
+    button_playklang->SetSize(button_playklang->GetBestSize());
     spin_ctrl_channels->SetToolTip(_("Change number of simultaneously playing channels"));
     grid_klangs->CreateGrid(0, 7);
     grid_klangs->SetRowLabelSize(0);
@@ -224,14 +237,15 @@ void FrameMain::do_layout()
     wxBoxSizer* sizer_bar = new wxBoxSizer(wxHORIZONTAL);
     sizer_bar->Add(button_play, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5);
     sizer_bar->Add(button_pause, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5);
-    sizer_bar->Add(25, 5, 0, wxALIGN_CENTER_VERTICAL|wxADJUST_MINSIZE, 0);
+    sizer_bar->Add(25, 5, 0, wxALIGN_CENTER_VERTICAL, 0);
     sizer_bar->Add(label_vol, 0, wxALL|wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL, 5);
     sizer_bar->Add(slider_vol, 1, wxALL|wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL, 5);
-    sizer_main->Add(sizer_bar, 0, wxEXPAND|wxADJUST_MINSIZE, 0);
-    sizer_klang_buttons->Add(10, 40, 0, wxALIGN_CENTER_HORIZONTAL|wxADJUST_MINSIZE, 0);
-    sizer_klang_buttons->Add(button_add, 0, wxALL|wxADJUST_MINSIZE, 5);
-    sizer_klang_buttons->Add(button_remove, 0, wxALL|wxADJUST_MINSIZE, 5);
-    sizer_klang_buttons->Add(button_info, 0, wxALL|wxADJUST_MINSIZE, 5);
+    sizer_main->Add(sizer_bar, 0, wxEXPAND, 0);
+    sizer_klang_buttons->Add(10, 40, 0, wxALIGN_CENTER_HORIZONTAL, 0);
+    sizer_klang_buttons->Add(button_add, 0, wxALL, 5);
+    sizer_klang_buttons->Add(button_remove, 0, wxALL, 5);
+    sizer_klang_buttons->Add(button_info, 0, wxALL, 5);
+    sizer_klang_buttons->Add(button_playklang, 0, wxALL, 5);
     sizer_klangset->Add(sizer_klang_buttons, 0, wxRIGHT, 5);
     sizer_channels->Add(label_channels, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5);
     sizer_channels->Add(spin_ctrl_channels, 0, wxALL, 5);

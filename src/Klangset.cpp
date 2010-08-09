@@ -49,13 +49,63 @@ Klang::Klang()
   loops_min = 0;
   loops_max = 0;
 
+  data_buffer = 0;
+  data_buffer_len = 0;
   alGenBuffers(1, &al_buffer);
 }
 
+
 Klang::~Klang()
 {
-  alDeleteBuffers(1, &al_buffer);
+  if(alIsBuffer(al_buffer))
+    alDeleteBuffers(1, &al_buffer);
+  if(data_buffer)
+    av_free(data_buffer);
 }
+
+
+Klang::Klang(const Klang& k)
+{
+  p_init = k.p_init;
+  p_incr= k.p_incr;
+  p_decr = k.p_decr;
+  p_now = k.p_now;
+  loops_min = k.loops_min;
+  loops_max = k.loops_max;
+
+  name = k.name;
+  filename = k.filename;
+  err = k.err;
+  
+  data_buffer = 0;
+  data_buffer_len = 0;
+  alGenBuffers(1, &al_buffer);
+
+  if(k.data_buffer_len && alIsBuffer(k.al_buffer))
+    {
+      data_buffer_len = k.data_buffer_len;
+      data_buffer = (uint8_t*)av_mallocz(data_buffer_len);
+      memcpy(data_buffer, k.data_buffer, data_buffer_len);
+
+      int bits, freq, channels;
+      alGetBufferi(k.al_buffer, AL_BITS, &bits);
+      alGetBufferi(k.al_buffer, AL_CHANNELS, &channels);
+      alGetBufferi(k.al_buffer, AL_FREQUENCY, &freq);
+
+      ALenum format;
+      if(channels == 1 && bits == 8)
+	format = AL_FORMAT_MONO8;
+      if(channels == 1 && bits == 16)
+	format = AL_FORMAT_MONO16;
+      if(channels == 2 && bits == 8)
+	format = AL_FORMAT_STEREO8;
+      if(channels == 2 && bits == 16)
+	format = AL_FORMAT_STEREO16;
+
+      alBufferData(al_buffer, format, data_buffer, data_buffer_len, freq);
+    }
+}
+
 
 
 
@@ -154,13 +204,13 @@ bool Klang::loadSnd(vector<char>& src)
 
 
   // sample_rate x seconds x channels
-  size_t bufsz = sizeof(uint16_t) * aCodecCtx->sample_rate * (pFormatCtx->duration/AV_TIME_BASE + 2) * aCodecCtx->channels;
-  if(bufsz < AVCODEC_MAX_AUDIO_FRAME_SIZE)
-    bufsz = AVCODEC_MAX_AUDIO_FRAME_SIZE;
+  data_buffer_len = sizeof(uint16_t) * aCodecCtx->sample_rate * (pFormatCtx->duration/AV_TIME_BASE + 2) * aCodecCtx->channels;
+  if(data_buffer_len < AVCODEC_MAX_AUDIO_FRAME_SIZE)
+    data_buffer_len = AVCODEC_MAX_AUDIO_FRAME_SIZE;
 
   size_t final_len=0;
-  uint8_t *buf = (uint8_t*)av_mallocz(bufsz);
-  outbuf_ptr = buf;
+  data_buffer = (uint8_t*)av_mallocz(data_buffer_len);
+  outbuf_ptr = data_buffer;
 
   // decode until eof 
   AVPacket        packet;
@@ -174,8 +224,7 @@ bool Klang::loadSnd(vector<char>& src)
 	  inbuf_ptr = packet.data;
 	  while (packet.size > 0) 
 	    {
-
-	      out_size = bufsz; // reset this as it gets sets by avcodec_decode_audio2()
+	      out_size = data_buffer_len; // reset this as it gets sets by avcodec_decode_audio2()
 	      len = avcodec_decode_audio2(aCodecCtx, (short*)outbuf_ptr, &out_size,
 					  inbuf_ptr, packet.size);
 	      if (len < 0) 
@@ -203,11 +252,19 @@ bool Klang::loadSnd(vector<char>& src)
     }
   
   // copy the data into an openal buffer
-  alBufferData(al_buffer, AL_FORMAT_STEREO16, buf, bufsz, aCodecCtx->sample_rate);
-  if(alGetError() != AL_NO_ERROR)
+  ALenum format;
+  if(aCodecCtx->channels == 1)
+    format = AL_FORMAT_MONO16;
+  if(aCodecCtx->channels == 2)
+    format = AL_FORMAT_STEREO16;
+
+  alBufferData(al_buffer, format, data_buffer, data_buffer_len, aCodecCtx->sample_rate);
+
+  ALenum error = alGetError();
+  if(error != AL_NO_ERROR)
     {
       err.Printf(_("Error creating AL buffer: "));
-      err += wxString(alGetString(alGetError()), wxConvUTF8);
+      err += wxString(alGetString(error), wxConvUTF8);
       avcodec_close(aCodecCtx);
       av_close_input_file(pFormatCtx);
       unlink(tmpfilename);
@@ -227,6 +284,8 @@ bool Klang::loadSnd(vector<char>& src)
 
 bool Klang::playSnd()
 {
+  bool status = true;
+
   if(al_buffer == AL_NONE)
     return false;
 
@@ -237,15 +296,17 @@ bool Klang::playSnd()
   alSourcePlay (source);
 
   // Normally nothing should go wrong above, but one never knows...
-  ALenum error = alGetError ();
+  ALenum error = alGetError();
   if (error != ALUT_ERROR_NO_ERROR)
     {
       err.Printf(_("Error playing AL buffer: "));
       err += wxString(alGetString(error), wxConvUTF8);
-      return false;
+      status = false;
     }
 
-  return true;
+  //  alDeleteSources (1, &source);
+
+  return status;
 }
 
 
@@ -276,7 +337,6 @@ bool Klangset::loadFile(const wxString& path)
       err.Printf(_("Could not open klangset '%s'.\n"), path.c_str());
       return false;
     }
-
 
   vector<char> cfgfile_buf;
 
@@ -399,8 +459,8 @@ bool Klangset::loadFile(const wxString& path)
       
       // all fine, add it
       push_back(k);
-      }
- 
+    }
+
   return true;
 }
 
