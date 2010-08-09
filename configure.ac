@@ -83,7 +83,7 @@ fi
 
 # check libs for reading and playing audio
 PKG_CHECK_MODULES(AVFORMAT, libavformat)
-PKG_CHECK_MODULES(OPENAL, openal)
+PKG_CHECK_MODULES(ALUT, freealut)
 
 
 dnl gdb under windows does backtraces only with stabs format?

@@ -10,7 +10,7 @@ AM_CPPFLAGS = \
 	 -g \
 	$(WX_CXXFLAGS) \
 	$(AVFORMAT_CFLAGS) \
-	$(OPENAL_CFLAGS) \
+	$(ALUT_CFLAGS) \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" $(klangwunder3000_CFLAGS)
@@ -52,7 +52,7 @@ klangwunder3000_LDFLAGS =
 
 klangwunder3000_LDADD = \
 	$(AVFORMAT_LIBS) \
-	$(OPENAL_LIBS) \
+	$(ALUT_LIBS) \
 	$(WX_LIBS) 
 
 
