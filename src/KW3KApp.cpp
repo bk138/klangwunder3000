@@ -8,7 +8,7 @@ extern "C" {
 #include "avcodec.h"
 #include "avformat.h"
 }
-
+#include "AL/alut.h"
 #include "KW3KApp.h"
 #include "gui/MyFrameMain.h"
 
@@ -39,6 +39,10 @@ bool KW3KApp::OnInit()
   // register all libavformat formats and codecs
   av_register_all();
 
+  // Initialize OpenAL and clear the error bit.
+  alutInit(&argc, (char**)argv);
+  alGetError();
+
   // wx stuff
   wxInitAllImageHandlers();
   MyFrameMain* frame_main = new MyFrameMain(NULL, wxID_ANY, wxEmptyString);
@@ -47,6 +51,13 @@ bool KW3KApp::OnInit()
   return true;
 }
 
+
+
+int KW3KApp::OnExit()
+{
+  alutExit();
+  return 1;
+}
 
 
 

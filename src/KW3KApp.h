@@ -23,6 +23,7 @@ public:
   wxString ks_now_path;
 
   bool OnInit();
+  int OnExit();
   bool setLocale(int language);
 };
 
