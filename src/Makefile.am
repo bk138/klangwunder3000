@@ -22,6 +22,7 @@ klangwunder3000_SOURCES = \
 	KW3KApp.h  \
 	Klangset.cpp \
 	Klangset.h \
+	dfltcfg.h \
 	gui/evtids.h \
 	gui/FrameMain.cpp \
 	gui/FrameMain.h \

@@ -56,7 +56,13 @@ bool KW3KApp::OnInit()
 int KW3KApp::OnExit()
 {
   alutExit();
-  return 1;
+
+  // clean up: Set() returns the active config object as Get() does, but unlike
+  // Get() it doesn't try to create one if there is none (definitely not what
+  // we want here!)
+  delete wxConfigBase::Set((wxConfigBase *) NULL);
+
+  return 0;
 }
 
 

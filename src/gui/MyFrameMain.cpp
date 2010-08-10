@@ -1,11 +1,9 @@
 
 #include "wx/aboutdlg.h"
-
 #include "res/about.png.h"
-
 #include "MyFrameMain.h"
 #include "../KW3KApp.h"
-
+#include "../dfltcfg.h"
 
 
 
@@ -41,6 +39,20 @@ MyFrameMain::MyFrameMain(wxWindow* parent, int id, const wxString& title,
 			 long style):
   FrameMain(parent, id, title, pos, size, style)	
 {
+  int x,y, vol;
+  // get default config object, created on demand if not exist
+  wxConfigBase *pConfig = wxConfigBase::Get();
+  pConfig->Read(K_VOLUME, &vol, V_VOLUME);
+  pConfig->Read(K_SIZE_X, &x, V_SIZE_X);
+  pConfig->Read(K_SIZE_Y, &y, V_SIZE_Y);
+
+  slider_vol->SetValue(vol);
+
+  // window size
+  SetMinSize(wxSize(640, 480));
+  SetSize(x, y);
+
+
   /*
     disable some menu items for a new frame
     unfortunately there seems to be a bug in wxMenu::FindItem(str): it skips '&' characters,
@@ -92,6 +104,21 @@ MyFrameMain::MyFrameMain(wxWindow* parent, int id, const wxString& title,
   */
   this->SetDropTarget(new MyFileDropTarget(this));
 }
+
+
+
+
+MyFrameMain::~MyFrameMain()
+{
+  wxConfigBase *pConfig = wxConfigBase::Get();
+  int x,y;
+  GetSize(&x, &y);
+  pConfig->Write(K_SIZE_X, x);
+  pConfig->Write(K_SIZE_Y, y);
+  pConfig->Write(K_VOLUME, slider_vol->GetValue());
+}
+
+
 
 
 

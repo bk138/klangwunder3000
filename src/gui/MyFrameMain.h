@@ -35,6 +35,7 @@ public:
 	      const wxPoint& pos=wxDefaultPosition, 
 	      const wxSize& size=wxDefaultSize, 
 	      long style=wxDEFAULT_FRAME_STYLE);
+  ~MyFrameMain();
 
  
   // handlers
