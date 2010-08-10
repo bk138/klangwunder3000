@@ -64,10 +64,13 @@ MyFrameMain::MyFrameMain(wxWindow* parent, int id, const wxString& title,
   /*
     and disable buttons
   */
+  button_play->Enable(false);
+  button_pause->Enable(false);
   button_add->Enable(false);
   button_remove->Enable(false);
   button_info->Enable(false);
   button_playklang->Enable(false);
+
 
 
   /*
@@ -215,6 +218,8 @@ void MyFrameMain::openKlangset(wxString& path)
 	  frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))
 	    ->FindItemByPosition(3)->Enable(true);
 
+	  button_play->Enable(true);
+	  button_pause->Enable(true);	
 	  button_remove->Enable(true);
 	  button_info->Enable(true);
 	  button_playklang->Enable(true);
@@ -373,6 +378,9 @@ void MyFrameMain::klang_add(wxCommandEvent &event)
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(1)->Enable(true);
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(2)->Enable(true);
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(3)->Enable(true);
+
+      button_play->Enable(true);
+      button_pause->Enable(true);
       button_remove->Enable(true);
       button_info->Enable(true);
       button_playklang->Enable(true);
@@ -405,6 +413,8 @@ void MyFrameMain::klang_remove(wxCommandEvent &event)
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(1)->Enable(false);
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(2)->Enable(false);
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(3)->Enable(false);
+      button_play->Enable(false);
+      button_pause->Enable(false);
       button_remove->Enable(false);
       button_info->Enable(false);
       button_playklang->Enable(false);

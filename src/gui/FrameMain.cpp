@@ -35,8 +35,8 @@ FrameMain::FrameMain(wxWindow* parent, int id, const wxString& title, const wxPo
     frame_main_menubar->Append(wxglade_tmp_menu_3, _("&Help"));
     SetMenuBar(frame_main_menubar);
     frame_main_statusbar = CreateStatusBar(2, 0);
-    button_play = new wxBitmapButton(panel_top, wxID_ANY, (bitmapFromMem(play_png)));
-    button_pause = new wxBitmapButton(panel_top, wxID_ANY, (bitmapFromMem(pause_png)));
+    button_play = new wxBitmapButton(panel_top, ID_PLAYKLANGSET, (bitmapFromMem(play_png)));
+    button_pause = new wxBitmapButton(panel_top, ID_PAUSEKLANGSET, (bitmapFromMem(pause_png)));
     label_vol = new wxStaticText(panel_top, wxID_ANY, _("Volume"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE);
     slider_vol = new wxSlider(panel_top, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL|wxSL_LABELS);
     button_add = new wxBitmapButton(panel_top, wxID_ADD, (bitmapFromMem(add_png)));
@@ -66,8 +66,8 @@ BEGIN_EVENT_TABLE(FrameMain, wxFrame)
     EVT_MENU(ID_PLAYKLANG, FrameMain::klang_play)
     EVT_MENU(wxID_HELP, FrameMain::help_contents)
     EVT_MENU(wxID_ABOUT, FrameMain::help_about)
-    EVT_BUTTON(wxID_ANY, FrameMain::klangset_play)
-    EVT_BUTTON(wxID_ANY, FrameMain::klangset_pause)
+    EVT_BUTTON(ID_PLAYKLANGSET, FrameMain::klangset_play)
+    EVT_BUTTON(ID_PAUSEKLANGSET, FrameMain::klangset_pause)
     EVT_BUTTON(wxID_ADD, FrameMain::klang_add)
     EVT_BUTTON(wxID_REMOVE, FrameMain::klang_remove)
     EVT_BUTTON(wxID_PROPERTIES, FrameMain::klang_info)
