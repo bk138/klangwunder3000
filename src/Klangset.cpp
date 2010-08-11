@@ -77,6 +77,8 @@ Klang::Klang(const Klang& k)
   filename = k.filename;
   err = k.err;
   
+  file_buffer = k.file_buffer;
+
   data_buffer = 0;
   data_buffer_len = 0;
   alGenBuffers(1, &al_buffer);
@@ -111,6 +113,15 @@ Klang::Klang(const Klang& k)
 
 bool Klang::loadSnd(vector<char>& src)
 {
+  /*
+    first, save encoded sound file data for later saving
+  */
+  file_buffer = src;
+
+
+  /*
+    then, decode sound file data into raw sound data
+  */
   int fd = -1;
   FILE *tmpfile;
 
@@ -517,7 +528,7 @@ bool Klangset::saveFile(const wxString& path)
   cfg.Write(wxT("Channels"), (long)channels);
  
 
-  // write config for each klang
+  // write config data for each klang
   for(Klangset::iterator it = begin(); it != end(); ++it)
     {
       cfg.SetPath(wxT("/Klangs/") + it->name);
@@ -530,11 +541,11 @@ bool Klangset::saveFile(const wxString& path)
       cfg.Write(wxT("Loops_max"), (long) it->loops_max);
     }
 
-  // write it into stream
+  // write config into stream
   wxMemoryOutputStream cfgstrm;
   cfg.Save(cfgstrm);
   
-  // get stream's size
+  // get config stream's size
   cfgstrm.SeekO(0, wxFromEnd);
   size_t sz = cfgstrm.TellO();
   
@@ -542,7 +553,7 @@ bool Klangset::saveFile(const wxString& path)
   vector<char> buf(sz);
   cfgstrm.CopyTo(&buf[0], sz);
 
-  // write data into file
+  // write config data into file
   wxFileOutputStream archive(path);
   if(! archive.IsOk())
     {
@@ -555,13 +566,15 @@ bool Klangset::saveFile(const wxString& path)
   
   if(!fileToZip(&outzipstrm, wxT(KLW_CFGFILE), buf))
     return false;
- 
+
+  // write file data for each klang
+  for(Klangset::iterator it = begin(); it != end(); ++it)
+    if(!fileToZip(&outzipstrm, it->filename, it->file_buffer))
+      return false;
+  
   // all well
   return true;
 }
-
-
-
 
 
 

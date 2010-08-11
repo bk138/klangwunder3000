@@ -17,7 +17,8 @@ struct Klang
 {
   wxString err;
 
-  uint8_t* data_buffer;
+  std::vector<char> file_buffer; // the encoded sound file
+  uint8_t* data_buffer;          // the decoded raw sound data
   size_t data_buffer_len;
 
 public:
