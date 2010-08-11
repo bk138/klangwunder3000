@@ -393,10 +393,26 @@ void MyFrameMain::klang_add(wxCommandEvent &event)
     {
       Klang k;
       
+      // load sound file into klang
+      wxFileInputStream sndfile(path);
+      if(!sndfile.IsOk())
+	{
+	  wxLogError(_("Could not open file!"));
+	  return;
+	}
+      std::vector<char> sndfilebuf;
+      while(!sndfile.Eof())
+	sndfilebuf.push_back(sndfile.GetC());
+      if(!k.loadSnd(sndfilebuf))
+	{
+	  wxLogError(_("Could not load file!"));
+	  return;
+	} 
+      
+
+      // insert into klangset and grid
       int pos = grid_klangs->GetGridCursorRow();
       pos =  pos < 0 ? 0 : pos;
-      
-      // insert into klangset and grid
       wxGetApp().ks_now->insert(wxGetApp().ks_now->begin() + pos, k);
       grid_klangs->InsertRows(pos); // new row
       klangset2grid(pos);           // fill it
