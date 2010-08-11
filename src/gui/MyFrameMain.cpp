@@ -394,6 +394,7 @@ void MyFrameMain::klang_add(wxCommandEvent &event)
       Klang k;
       
       // load sound file into klang
+      k.filename = path.AfterLast(wxT('/'));
       wxFileInputStream sndfile(path);
       if(!sndfile.IsOk())
 	{
