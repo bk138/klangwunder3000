@@ -49,8 +49,6 @@ Klang::Klang()
   loops_min = 0;
   loops_max = 0;
   
-  data_buffer = 0;
-  data_buffer_len = 0;
   alGenBuffers(1, &al_buffer);
 }
 
@@ -59,8 +57,6 @@ Klang::~Klang()
 {
   if(alIsBuffer(al_buffer))
     alDeleteBuffers(1, &al_buffer);
-  if(data_buffer)
-    av_free(data_buffer);
 }
 
 
@@ -78,17 +74,12 @@ Klang::Klang(const Klang& k)
   err = k.err;
   
   file_buffer = k.file_buffer;
+  data_buffer = k.data_buffer;
 
-  data_buffer = 0;
-  data_buffer_len = 0;
   alGenBuffers(1, &al_buffer);
 
-  if(k.data_buffer_len && alIsBuffer(k.al_buffer))
+  if(k.data_buffer.size() && alIsBuffer(k.al_buffer))
     {
-      data_buffer_len = k.data_buffer_len;
-      data_buffer = (uint8_t*)av_mallocz(data_buffer_len);
-      memcpy(data_buffer, k.data_buffer, data_buffer_len);
-
       int bits, freq, channels;
       alGetBufferi(k.al_buffer, AL_BITS, &bits);
       alGetBufferi(k.al_buffer, AL_CHANNELS, &channels);
@@ -104,7 +95,7 @@ Klang::Klang(const Klang& k)
       if(channels == 2 && bits == 16)
 	format = AL_FORMAT_STEREO16;
 
-      alBufferData(al_buffer, format, data_buffer, data_buffer_len, freq);
+      alBufferData(al_buffer, format, &data_buffer[0], data_buffer.size(), freq);
     }
 }
 
@@ -209,13 +200,13 @@ bool Klang::loadSnd(vector<char>& src)
   avcodec_open(aCodecCtx, aCodec);
 
   // sample_rate x seconds x channels
-  data_buffer_len = sizeof(uint16_t) * aCodecCtx->sample_rate * (pFormatCtx->duration/AV_TIME_BASE + 2) * aCodecCtx->channels;
+  size_t data_buffer_len = sizeof(uint16_t) * aCodecCtx->sample_rate * (pFormatCtx->duration/AV_TIME_BASE + 2) * aCodecCtx->channels;
   if(data_buffer_len < AVCODEC_MAX_AUDIO_FRAME_SIZE)
     data_buffer_len = AVCODEC_MAX_AUDIO_FRAME_SIZE;
 
   size_t final_len=0;
-  data_buffer = (uint8_t*)av_mallocz(data_buffer_len);
-  outbuf_ptr = data_buffer;
+  data_buffer.resize(data_buffer_len);
+  outbuf_ptr = (uint8_t*)&data_buffer[0];
 
   // decode until eof 
   AVPacket        packet;
@@ -263,7 +254,7 @@ bool Klang::loadSnd(vector<char>& src)
   if(aCodecCtx->channels == 2)
     format = AL_FORMAT_STEREO16;
 
-  alBufferData(al_buffer, format, data_buffer, data_buffer_len, aCodecCtx->sample_rate);
+  alBufferData(al_buffer, format, &data_buffer[0], data_buffer_len, aCodecCtx->sample_rate);
 
   ALenum error = alGetError();
   if(error != AL_NO_ERROR)
