@@ -38,7 +38,7 @@ FrameMain::FrameMain(wxWindow* parent, int id, const wxString& title, const wxPo
     button_play = new wxBitmapButton(panel_top, ID_PLAYKLANGSET, (bitmapFromMem(play_png)));
     button_pause = new wxBitmapButton(panel_top, ID_PAUSEKLANGSET, (bitmapFromMem(pause_png)));
     label_vol = new wxStaticText(panel_top, wxID_ANY, _("Volume"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE);
-    slider_vol = new wxSlider(panel_top, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL|wxSL_LABELS);
+    slider_vol = new wxSlider(panel_top, ID_VOLCHANGE, 0, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL|wxSL_LABELS);
     button_add = new wxBitmapButton(panel_top, wxID_ADD, (bitmapFromMem(add_png)));
     button_remove = new wxBitmapButton(panel_top, wxID_REMOVE, (bitmapFromMem(remove_png)));
     button_info = new wxBitmapButton(panel_top, wxID_PROPERTIES, (bitmapFromMem(info_png)));
@@ -68,6 +68,7 @@ BEGIN_EVENT_TABLE(FrameMain, wxFrame)
     EVT_MENU(wxID_ABOUT, FrameMain::help_about)
     EVT_BUTTON(ID_PLAYKLANGSET, FrameMain::klangset_play)
     EVT_BUTTON(ID_PAUSEKLANGSET, FrameMain::klangset_pause)
+    EVT_COMMAND_SCROLL(ID_VOLCHANGE, FrameMain::vol_change)
     EVT_BUTTON(wxID_ADD, FrameMain::klang_add)
     EVT_BUTTON(wxID_REMOVE, FrameMain::klang_remove)
     EVT_BUTTON(wxID_PROPERTIES, FrameMain::klang_info)
@@ -164,6 +165,13 @@ void FrameMain::klangset_pause(wxCommandEvent &event)
 {
     event.Skip();
     wxLogDebug(wxT("Event handler (FrameMain::klangset_pause) not implemented yet")); //notify the user that he hasn't implemented the event handler yet
+}
+
+
+void FrameMain::vol_change(wxScrollEvent &event)
+{
+    event.Skip();
+    wxLogDebug(wxT("Event handler (FrameMain::vol_change) not implemented yet")); //notify the user that he hasn't implemented the event handler yet
 }
 
 

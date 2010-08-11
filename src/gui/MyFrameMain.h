@@ -49,6 +49,8 @@ public:
   void klang_info(wxCommandEvent &event); 
   void klang_play(wxCommandEvent &event); 
 
+  void vol_change(wxScrollEvent &event);
+
   void help_about(wxCommandEvent &event);
 
   void app_exit(wxCommandEvent &event);

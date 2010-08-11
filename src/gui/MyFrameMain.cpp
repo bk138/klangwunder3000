@@ -518,6 +518,12 @@ void MyFrameMain::klang_play(wxCommandEvent &event)
 
 
 
+void MyFrameMain::vol_change(wxScrollEvent &event)
+{
+  alListenerf(AL_GAIN, slider_vol->GetValue()/100.0);
+}
+
+
   
 
 

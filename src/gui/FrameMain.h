@@ -78,6 +78,7 @@ public:
     virtual void help_about(wxCommandEvent &event); // wxGlade: <event_handler>
     virtual void klangset_play(wxCommandEvent &event); // wxGlade: <event_handler>
     virtual void klangset_pause(wxCommandEvent &event); // wxGlade: <event_handler>
+    virtual void vol_change(wxScrollEvent &event); // wxGlade: <event_handler>
 }; // wxGlade: end class
 
 
