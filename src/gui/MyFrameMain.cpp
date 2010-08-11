@@ -490,9 +490,9 @@ void MyFrameMain::klang_info(wxCommandEvent &event)
 
   wxMessageBox(_("Name:              ") + name + wxT("\n") +
 	       _("Internal name: ") + filename + wxT("\n") +
-	       _("Duration: ") + duration + wxT("\n") +
-	       _("Channels: ") + channels + wxT("\n") +
-	       _("Sample Rate: ") + samplerate,
+	       _("Duration:         ") + duration + wxT("\n") +
+	       _("Channels:        ") + channels + wxT("\n") +
+	       _("Sample Rate:   ") + samplerate,
 	       _("Info on Klang"),
 	       wxOK | wxICON_INFORMATION,
 	       this);
