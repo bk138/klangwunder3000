@@ -6,7 +6,16 @@
 #include "../dfltcfg.h"
 
 
+// map recv of events to handler methods
+BEGIN_EVENT_TABLE(MyFrameMain, FrameMain)
+   EVT_CLOSE (MyFrameMain::onClose)
+END_EVENT_TABLE()
 
+
+/*
+  internal file drop class
+
+*/
 
 MyFrameMain::MyFileDropTarget::MyFileDropTarget(MyFrameMain *caller)
 {
@@ -30,8 +39,10 @@ bool MyFrameMain::MyFileDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxAr
 
 
 
+/*
+  constructor /destructor
 
-
+*/
 
 MyFrameMain::MyFrameMain(wxWindow* parent, int id, const wxString& title, 
 			 const wxPoint& pos,
@@ -120,6 +131,32 @@ MyFrameMain::~MyFrameMain()
 
 
 
+/*
+  private functions
+  
+*/
+
+void MyFrameMain::onClose(wxCloseEvent& event)
+{
+  if(wxGetApp().ks_now && wxGetApp().ks_now_changed)
+    {
+      int answer = wxMessageBox(_("Klangset changed. Save it before exiting?"), _("Save changed klangset?"),
+				wxYES_NO|wxCANCEL|wxICON_QUESTION, this);
+      if(answer == wxCANCEL)
+	{
+	  if(event.CanVeto()) // i.e. not called from user code
+	    event.Veto();     // do not close
+	  return;
+	}
+      if(answer == wxYES)
+	{
+	  wxCommandEvent unused;
+	  klangset_save(unused);
+	}
+    }
+  
+  Destroy();
+}
 
 
 /*
@@ -612,19 +649,6 @@ void MyFrameMain::help_about(wxCommandEvent &event)
 
 void MyFrameMain::app_exit(wxCommandEvent &event)
 {
-  if(wxGetApp().ks_now && wxGetApp().ks_now_changed)
-    {
-      int answer = wxMessageBox(_("Klangset changed. Save it before exiting?"), _("Save changed klangset?"),
-				wxYES_NO|wxCANCEL|wxICON_QUESTION, this);
-      if(answer == wxCANCEL)
-	return;
-      if(answer == wxYES)
-	{
-	  wxCommandEvent unused;
-	  klangset_save(unused);
-	}
-    }
-
   Close(true);
 }
 

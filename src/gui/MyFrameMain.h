@@ -27,8 +27,15 @@ class MyFrameMain: public FrameMain
   void openKlangset(wxString& path);
   void openKlang(wxString& path);
 
+  // grid <-> data structure conversion
   void klangset2grid(int begin, int end = -1);
   void grid2klangset();
+
+  // private handlers
+  void onClose(wxCloseEvent& event);
+  
+protected:
+  DECLARE_EVENT_TABLE();
 
 public:
   MyFrameMain(wxWindow* parent, int id, const wxString& title, 
