@@ -433,6 +433,9 @@ void MyFrameMain::klang_add(wxCommandEvent &event)
 
   if(!path.empty())
     {
+      wxBusyCursor busy;
+      wxLogStatus(_("Loading"));
+
       Klang k;
       
       // load sound file into klang
@@ -473,6 +476,8 @@ void MyFrameMain::klang_add(wxCommandEvent &event)
       button_remove->Enable(true);
       button_info->Enable(true);
       button_playklang->Enable(true);
+
+      wxLogStatus(_("Loaded successfully"));
     }
 }
 
