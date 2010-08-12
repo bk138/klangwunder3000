@@ -25,7 +25,6 @@ class MyFrameMain: public FrameMain
 
   // internal real open functions
   void openKlangset(wxString& path);
-  void openKlang(wxString& path);
 
   // grid <-> data structure conversion
   void klangset2grid(int begin, int end = -1);

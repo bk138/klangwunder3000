@@ -159,98 +159,59 @@ void MyFrameMain::onClose(wxCloseEvent& event)
 }
 
 
-/*
-  handler functions
-*/
 
-void MyFrameMain::klangset_new(wxCommandEvent &event)
+
+
+void MyFrameMain::klangset2grid(int begin, int end)
 {
-  if(wxGetApp().ks_now && wxGetApp().ks_now_changed)
-    {
-      int answer = wxMessageBox(_("Klangset changed. Save it before continuing?"), _("Save changed klangset?"),
-				wxYES_NO|wxCANCEL|wxICON_QUESTION, this);
+  if(end < 0)
+    end = begin + 1;
 
-      if(answer == wxCANCEL)
-	return;
-      if(answer == wxYES)
-	{
-	  wxCommandEvent unused;
-	  klangset_save(unused);
-	}
+  for(int row = begin; row < end; ++row)
+    {
+      Klang k = wxGetApp().ks_now->at(row);
+
+      grid_klangs->SetCellValue(row, 0, k.name);
+      grid_klangs->SetCellValue(row, 1, wxString() << k.p_now);
+      grid_klangs->SetCellValue(row, 2, wxString() << k.p_init);
+      grid_klangs->SetCellValue(row, 3, wxString() << k.p_incr);
+      grid_klangs->SetCellValue(row, 4, wxString() << k.p_decr);
+      grid_klangs->SetCellValue(row, 5, wxString() << k.loops_min);
+      grid_klangs->SetCellValue(row, 6, wxString() << k.loops_max);
     }
 
-
-  wxString newname = wxGetTextFromUser(_("How should the new klangset be named?"),
-				       _("Enter klangset name"),
-				       wxEmptyString,
-				       this);
-  if(!newname.empty())
-   {
-      delete wxGetApp().ks_now; // if there's already one open, delete it
-      
-      wxGetApp().ks_now = new Klangset;
-      wxGetApp().ks_now->name = newname;
-
-      wxString dir = wxFileName::GetCwd();
-      if(dir.empty())
-	dir = wxFileName::GetHomeDir();
-      wxGetApp().ks_now_path = dir + wxFileName::GetPathSeparator() + wxGetApp().ks_now->name + wxT(".klw");
-
-      wxGetApp().ks_now_changed = false;
-
-
-      /*
-	enable menu items
-      */
-      // this is "Save"
-      frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(2)->Enable(true);
-      // "Save as"
-      frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(3)->Enable(true);
-      // "add klang
-      frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(0)->Enable(true);
-
-      /*
-	and enable button
-      */
-      button_add->Enable(true);
-
-      SetTitle(wxT("Klangwunder3000 - ") + wxGetApp().ks_now->name + 
-	       wxString(wxT(" v. ")) << wxGetApp().ks_now->version);
-   }
+  grid_klangs->AutoSizeColumns();
 }
 
 
 
 
+void MyFrameMain::grid2klangset()
+{
+  // Sets the value of the current grid cell to the current in-place edit control value. 
+  // This is called automatically when the grid cursor moves from the current cell to a new cell.
+  grid_klangs->SaveEditControlValue();
 
-void MyFrameMain::klangset_open(wxCommandEvent &event)
-{	
-  if(wxGetApp().ks_now && wxGetApp().ks_now_changed)
+  long in_long = 0;
+
+  int row = 0;
+  for(Klangset::iterator it = wxGetApp().ks_now->begin(); it != wxGetApp().ks_now->end(); ++it)
     {
-      int answer = wxMessageBox(_("Klangset changed. Save it before continuing?"), _("Save changed klangset?"),
-				wxYES_NO|wxCANCEL|wxICON_QUESTION, this);
+      it->name = grid_klangs->GetCellValue(row, 0);
 
-      if(answer == wxCANCEL)
-	return;
-      if(answer == wxYES)
-	{
-	  wxCommandEvent unused;
-	  klangset_save(unused);
-	}
+      grid_klangs->GetCellValue(row, 2).ToDouble(&it->p_init);
+      grid_klangs->GetCellValue(row, 3).ToDouble(&it->p_incr);
+      grid_klangs->GetCellValue(row, 4).ToDouble(&it->p_decr);
+
+      grid_klangs->GetCellValue(row, 5).ToLong(&in_long);
+      it->loops_min = in_long;
+      grid_klangs->GetCellValue(row, 6).ToLong(&in_long);
+      it->loops_max = in_long;
+	
+      ++row;
     }
-
-
-  wxString path = wxFileSelector(_("Choose a file to open"), 
-				 wxEmptyString,
-				 wxEmptyString,
-				 wxEmptyString,
-				 _("Klangset (*.klw)|*.klw|All files (*.*)|*.*"),
-				 wxFD_OPEN | wxFD_FILE_MUST_EXIST,
-				 this);
-
-  if(!path.empty())
-    openKlangset(path);
 }
+
 
 
 
@@ -344,6 +305,106 @@ void MyFrameMain::openKlangset(wxString& path)
   */
   wxGetApp().setLocale(wxLANGUAGE_DEFAULT);
 }
+
+
+
+
+
+
+
+/*
+  handler functions
+*/
+
+void MyFrameMain::klangset_new(wxCommandEvent &event)
+{
+  if(wxGetApp().ks_now && wxGetApp().ks_now_changed)
+    {
+      int answer = wxMessageBox(_("Klangset changed. Save it before continuing?"), _("Save changed klangset?"),
+				wxYES_NO|wxCANCEL|wxICON_QUESTION, this);
+
+      if(answer == wxCANCEL)
+	return;
+      if(answer == wxYES)
+	{
+	  wxCommandEvent unused;
+	  klangset_save(unused);
+	}
+    }
+
+
+  wxString newname = wxGetTextFromUser(_("How should the new klangset be named?"),
+				       _("Enter klangset name"),
+				       wxEmptyString,
+				       this);
+  if(!newname.empty())
+   {
+      delete wxGetApp().ks_now; // if there's already one open, delete it
+      
+      wxGetApp().ks_now = new Klangset;
+      wxGetApp().ks_now->name = newname;
+
+      wxString dir = wxFileName::GetCwd();
+      if(dir.empty())
+	dir = wxFileName::GetHomeDir();
+      wxGetApp().ks_now_path = dir + wxFileName::GetPathSeparator() + wxGetApp().ks_now->name + wxT(".klw");
+
+      wxGetApp().ks_now_changed = false;
+
+
+      /*
+	enable menu items
+      */
+      // this is "Save"
+      frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(2)->Enable(true);
+      // "Save as"
+      frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(3)->Enable(true);
+      // "add klang
+      frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(0)->Enable(true);
+
+      /*
+	and enable button
+      */
+      button_add->Enable(true);
+
+      SetTitle(wxT("Klangwunder3000 - ") + wxGetApp().ks_now->name + 
+	       wxString(wxT(" v. ")) << wxGetApp().ks_now->version);
+   }
+}
+
+
+
+
+
+void MyFrameMain::klangset_open(wxCommandEvent &event)
+{	
+  if(wxGetApp().ks_now && wxGetApp().ks_now_changed)
+    {
+      int answer = wxMessageBox(_("Klangset changed. Save it before continuing?"), _("Save changed klangset?"),
+				wxYES_NO|wxCANCEL|wxICON_QUESTION, this);
+
+      if(answer == wxCANCEL)
+	return;
+      if(answer == wxYES)
+	{
+	  wxCommandEvent unused;
+	  klangset_save(unused);
+	}
+    }
+
+
+  wxString path = wxFileSelector(_("Choose a file to open"), 
+				 wxEmptyString,
+				 wxEmptyString,
+				 wxEmptyString,
+				 _("Klangset (*.klw)|*.klw|All files (*.*)|*.*"),
+				 wxFD_OPEN | wxFD_FILE_MUST_EXIST,
+				 this);
+
+  if(!path.empty())
+    openKlangset(path);
+}
+
 
 
 
@@ -654,54 +715,3 @@ void MyFrameMain::app_exit(wxCommandEvent &event)
 
 
 
-
-
-void MyFrameMain::klangset2grid(int begin, int end)
-{
-  if(end < 0)
-    end = begin + 1;
-
-  for(int row = begin; row < end; ++row)
-    {
-      Klang k = wxGetApp().ks_now->at(row);
-
-      grid_klangs->SetCellValue(row, 0, k.name);
-      grid_klangs->SetCellValue(row, 1, wxString() << k.p_now);
-      grid_klangs->SetCellValue(row, 2, wxString() << k.p_init);
-      grid_klangs->SetCellValue(row, 3, wxString() << k.p_incr);
-      grid_klangs->SetCellValue(row, 4, wxString() << k.p_decr);
-      grid_klangs->SetCellValue(row, 5, wxString() << k.loops_min);
-      grid_klangs->SetCellValue(row, 6, wxString() << k.loops_max);
-    }
-
-  grid_klangs->AutoSizeColumns();
-}
-
-
-
-
-void MyFrameMain::grid2klangset()
-{
-  // Sets the value of the current grid cell to the current in-place edit control value. 
-  // This is called automatically when the grid cursor moves from the current cell to a new cell.
-  grid_klangs->SaveEditControlValue();
-
-  long in_long = 0;
-
-  int row = 0;
-  for(Klangset::iterator it = wxGetApp().ks_now->begin(); it != wxGetApp().ks_now->end(); ++it)
-    {
-      it->name = grid_klangs->GetCellValue(row, 0);
-
-      grid_klangs->GetCellValue(row, 2).ToDouble(&it->p_init);
-      grid_klangs->GetCellValue(row, 3).ToDouble(&it->p_incr);
-      grid_klangs->GetCellValue(row, 4).ToDouble(&it->p_decr);
-
-      grid_klangs->GetCellValue(row, 5).ToLong(&in_long);
-      it->loops_min = in_long;
-      grid_klangs->GetCellValue(row, 6).ToLong(&in_long);
-      it->loops_max = in_long;
-	
-      ++row;
-    }
-}
