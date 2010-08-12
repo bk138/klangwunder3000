@@ -22,6 +22,7 @@ class KW3KApp: public wxApp
 public:
   Klangset *ks_now;
   wxString ks_now_path;
+  bool ks_now_changed;
 
   bool OnInit();
   int OnExit();

@@ -51,6 +51,8 @@ public:
 
   void vol_change(wxScrollEvent &event);
 
+  void grid_change(wxGridEvent &event);
+
   void help_about(wxCommandEvent &event);
 
   void app_exit(wxCommandEvent &event);

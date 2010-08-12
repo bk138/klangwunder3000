@@ -28,6 +28,7 @@ bool KW3KApp::OnInit()
 {
   locale = 0;
   ks_now = 0;
+  ks_now_changed = false;
   
   setLocale(wxLANGUAGE_DEFAULT);
 

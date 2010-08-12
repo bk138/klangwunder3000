@@ -128,11 +128,26 @@ MyFrameMain::~MyFrameMain()
 
 void MyFrameMain::klangset_new(wxCommandEvent &event)
 {
+  if(wxGetApp().ks_now && wxGetApp().ks_now_changed)
+    {
+      int answer = wxMessageBox(_("Klangset changed. Save it before continuing?"), _("Save changed klangset?"),
+				wxYES_NO|wxCANCEL|wxICON_QUESTION, this);
+
+      if(answer == wxCANCEL)
+	return;
+      if(answer == wxYES)
+	{
+	  wxCommandEvent unused;
+	  klangset_save(unused);
+	}
+    }
+
+
   wxString newname = wxGetTextFromUser(_("How should the new klangset be named?"),
 				       _("Enter klangset name"),
 				       wxEmptyString,
 				       this);
- if(!newname.empty())
+  if(!newname.empty())
    {
       delete wxGetApp().ks_now; // if there's already one open, delete it
       
@@ -143,6 +158,9 @@ void MyFrameMain::klangset_new(wxCommandEvent &event)
       if(dir.empty())
 	dir = wxFileName::GetHomeDir();
       wxGetApp().ks_now_path = dir + wxFileName::GetPathSeparator() + wxGetApp().ks_now->name + wxT(".klw");
+
+      wxGetApp().ks_now_changed = false;
+
 
       /*
 	enable menu items
@@ -170,6 +188,21 @@ void MyFrameMain::klangset_new(wxCommandEvent &event)
 
 void MyFrameMain::klangset_open(wxCommandEvent &event)
 {	
+  if(wxGetApp().ks_now && wxGetApp().ks_now_changed)
+    {
+      int answer = wxMessageBox(_("Klangset changed. Save it before continuing?"), _("Save changed klangset?"),
+				wxYES_NO|wxCANCEL|wxICON_QUESTION, this);
+
+      if(answer == wxCANCEL)
+	return;
+      if(answer == wxYES)
+	{
+	  wxCommandEvent unused;
+	  klangset_save(unused);
+	}
+    }
+
+
   wxString path = wxFileSelector(_("Choose a file to open"), 
 				 wxEmptyString,
 				 wxEmptyString,
@@ -213,6 +246,9 @@ void MyFrameMain::openKlangset(wxString& path)
       // so construct our path based on dir file resides in and its klangset name
       wxGetApp().ks_now_path = wxFileName(path).GetPath(wxPATH_GET_VOLUME|wxPATH_GET_SEPARATOR) 
 	+ wxGetApp().ks_now->name + wxT(".klw");
+
+      // not modified yet
+      wxGetApp().ks_now_changed = false;
 
       SetTitle(wxT("Klangwunder3000 - ") + wxGetApp().ks_now->name + 
 	       wxString(wxT(" version ")) << wxGetApp().ks_now->version);
@@ -306,6 +342,9 @@ void MyFrameMain::klangset_save(wxCommandEvent &event)
 
   SetTitle(wxT("Klangwunder3000 - ") + wxGetApp().ks_now->name + 
 	   wxString(wxT(" v. ")) << wxGetApp().ks_now->version);
+
+  // now saved state == state in gui
+  wxGetApp().ks_now_changed = false;
 }
 
 
@@ -369,6 +408,9 @@ void MyFrameMain::klangset_saveas(wxCommandEvent &event)
       // all well, set title
       SetTitle(wxT("Klangwunder3000 - ") + wxGetApp().ks_now->name + 
 	       wxString(wxT(" v. ")) << wxGetApp().ks_now->version);
+
+      // now saved state == state in gui
+      wxGetApp().ks_now_changed = false;
     }
 }
 
@@ -418,6 +460,9 @@ void MyFrameMain::klang_add(wxCommandEvent &event)
       grid_klangs->InsertRows(pos); // new row
       klangset2grid(pos);           // fill it
 
+      // now saved state != state in gui
+      wxGetApp().ks_now_changed = true;
+
       // there's sth. to remove or get info on or to play now
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(1)->Enable(true);
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(2)->Enable(true);
@@ -450,6 +495,9 @@ void MyFrameMain::klang_remove(wxCommandEvent &event)
   // remove klangset and grid row
   wxGetApp().ks_now->erase(wxGetApp().ks_now->begin() + pos);
   grid_klangs->DeleteRows(pos);   
+
+  // now saved state != state in gui
+  wxGetApp().ks_now_changed = true;
 
   // disable "remove", "info" and "play" if nothing left
   if(wxGetApp().ks_now->size() < 1)
@@ -524,6 +572,15 @@ void MyFrameMain::vol_change(wxScrollEvent &event)
 }
 
 
+
+void MyFrameMain::grid_change(wxGridEvent &event)
+{
+  // now saved state != state in gui
+  wxGetApp().ks_now_changed = true;
+}
+
+
+  
   
 
 
@@ -550,6 +607,19 @@ void MyFrameMain::help_about(wxCommandEvent &event)
 
 void MyFrameMain::app_exit(wxCommandEvent &event)
 {
+  if(wxGetApp().ks_now && wxGetApp().ks_now_changed)
+    {
+      int answer = wxMessageBox(_("Klangset changed. Save it before exiting?"), _("Save changed klangset?"),
+				wxYES_NO|wxCANCEL|wxICON_QUESTION, this);
+      if(answer == wxCANCEL)
+	return;
+      if(answer == wxYES)
+	{
+	  wxCommandEvent unused;
+	  klangset_save(unused);
+	}
+    }
+
   Close(true);
 }
 
