@@ -140,21 +140,27 @@ MyFrameMain::~MyFrameMain()
 
 void MyFrameMain::onClose(wxCloseEvent& event)
 {
-  if(wxGetApp().ks_now && wxGetApp().ks_now_changed)
+  if(wxGetApp().ks_now)
     {
-      int answer = wxMessageBox(_("Klangset changed. Save it before exiting?"), _("Save changed klangset?"),
-				wxYES_NO|wxCANCEL|wxICON_QUESTION, this);
-      if(answer == wxCANCEL)
+      if(wxGetApp().ks_now_changed)
 	{
-	  if(event.CanVeto()) // i.e. not called from user code
-	    event.Veto();     // do not close
-	  return;
+	  int answer = wxMessageBox(_("Klangset changed. Save it before exiting?"), _("Save changed klangset?"),
+				    wxYES_NO|wxCANCEL|wxICON_QUESTION, this);
+	  if(answer == wxCANCEL)
+	    {
+	      if(event.CanVeto()) // i.e. not called from user code
+		event.Veto();     // do not close
+	      return;
+	    }
+	  if(answer == wxYES)
+	    {
+	      wxCommandEvent unused;
+	      klangset_save(unused);
+	    }
 	}
-      if(answer == wxYES)
-	{
-	  wxCommandEvent unused;
-	  klangset_save(unused);
-	}
+
+      delete wxGetApp().ks_now; 
+      wxGetApp().ks_now = 0; 
     }
   
   Destroy();
