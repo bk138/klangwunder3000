@@ -20,6 +20,8 @@ struct Klang
   std::vector<char> file_buffer; // the encoded sound file
   std::vector<char> data_buffer; // the decoded raw sound data
 
+  ALuint static_source;
+
 public:
   double p_init;
   double p_incr;

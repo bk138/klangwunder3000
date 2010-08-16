@@ -49,6 +49,7 @@ Klang::Klang()
   loops_max = 0;
   
   alGenBuffers(1, &al_buffer);
+  alGenSources(1, &static_source);
 }
 
 
@@ -56,6 +57,8 @@ Klang::~Klang()
 {
   if(alIsBuffer(al_buffer))
     alDeleteBuffers(1, &al_buffer);
+  if(alIsSource(static_source))
+    alDeleteSources(1, &static_source);
 }
 
 
@@ -76,6 +79,7 @@ Klang::Klang(const Klang& k)
   data_buffer = k.data_buffer;
 
   alGenBuffers(1, &al_buffer);
+  alGenSources(1, &static_source);
 
   if(k.data_buffer.size() && alIsBuffer(k.al_buffer))
     {
@@ -284,11 +288,8 @@ bool Klang::playSnd()
   if(al_buffer == AL_NONE)
     return false;
 
-  // Generate a single source, attach the buffer to it and start playing. 
-  ALuint source;
-  alGenSources (1, &source);
-  alSourcei (source, AL_BUFFER, al_buffer);
-  alSourcePlay (source);
+  alSourcei (static_source, AL_BUFFER, al_buffer);
+  alSourcePlay (static_source);
 
   // Normally nothing should go wrong above, but one never knows...
   ALenum error = alGetError();
@@ -298,8 +299,6 @@ bool Klang::playSnd()
       err += wxString(alGetString(error), wxConvUTF8);
       status = false;
     }
-
-  //  alDeleteSources (1, &source);
 
   return status;
 }
