@@ -16,10 +16,11 @@ FrameMain::FrameMain(wxWindow* parent, int id, const wxString& title, const wxPo
     panel_grid = new wxPanel(panel_top, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER|wxSTATIC_BORDER|wxTAB_TRAVERSAL);
     frame_main_menubar = new wxMenuBar();
     wxMenu* wxglade_tmp_menu_1 = new wxMenu();
-    wxglade_tmp_menu_1->Append(wxID_NEW, _("&New"), _("Create a new Klangset."), wxITEM_NORMAL);
-    wxglade_tmp_menu_1->Append(wxID_OPEN, _("&Open..."), _("Open an existing Klangset."), wxITEM_NORMAL);
-    wxglade_tmp_menu_1->Append(wxID_SAVE, _("&Save"), _("Save this Klangset."), wxITEM_NORMAL);
-    wxglade_tmp_menu_1->Append(wxID_SAVEAS, _("Save &as..."), _("Save this Klangset as..."), wxITEM_NORMAL);
+    wxglade_tmp_menu_1->Append(wxID_NEW, _("&New"), _("Create a new klangset."), wxITEM_NORMAL);
+    wxglade_tmp_menu_1->Append(wxID_OPEN, _("&Open..."), _("Open an existing klangset."), wxITEM_NORMAL);
+    wxglade_tmp_menu_1->Append(wxID_SAVE, _("&Save"), _("Save this klangset."), wxITEM_NORMAL);
+    wxglade_tmp_menu_1->Append(wxID_SAVEAS, _("Save &as..."), _("Save this klangset as..."), wxITEM_NORMAL);
+    wxglade_tmp_menu_1->Append(wxID_CLOSE, _("&Close"), _("Close this klangset."), wxITEM_NORMAL);
     wxglade_tmp_menu_1->AppendSeparator();
     wxglade_tmp_menu_1->Append(wxID_EXIT, _("E&xit"), _("Exit Klangwunder3000."), wxITEM_NORMAL);
     frame_main_menubar->Append(wxglade_tmp_menu_1, _("&File"));
@@ -59,6 +60,7 @@ BEGIN_EVENT_TABLE(FrameMain, wxFrame)
     EVT_MENU(wxID_OPEN, FrameMain::klangset_open)
     EVT_MENU(wxID_SAVE, FrameMain::klangset_save)
     EVT_MENU(wxID_SAVEAS, FrameMain::klangset_saveas)
+    EVT_MENU(wxID_CLOSE, FrameMain::klangset_close)
     EVT_MENU(wxID_EXIT, FrameMain::app_exit)
     EVT_MENU(wxID_ADD, FrameMain::klang_add)
     EVT_MENU(wxID_REMOVE, FrameMain::klang_remove)
@@ -103,6 +105,13 @@ void FrameMain::klangset_saveas(wxCommandEvent &event)
 {
     event.Skip();
     wxLogDebug(wxT("Event handler (FrameMain::klangset_saveas) not implemented yet")); //notify the user that he hasn't implemented the event handler yet
+}
+
+
+void FrameMain::klangset_close(wxCommandEvent &event)
+{
+    event.Skip();
+    wxLogDebug(wxT("Event handler (FrameMain::klangset_close) not implemented yet")); //notify the user that he hasn't implemented the event handler yet
 }
 
 

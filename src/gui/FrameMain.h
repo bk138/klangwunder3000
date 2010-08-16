@@ -69,6 +69,7 @@ public:
     virtual void klangset_open(wxCommandEvent &event); // wxGlade: <event_handler>
     virtual void klangset_save(wxCommandEvent &event); // wxGlade: <event_handler>
     virtual void klangset_saveas(wxCommandEvent &event); // wxGlade: <event_handler>
+    virtual void klangset_close(wxCommandEvent &event); // wxGlade: <event_handler>
     virtual void app_exit(wxCommandEvent &event); // wxGlade: <event_handler>
     virtual void klang_add(wxCommandEvent &event); // wxGlade: <event_handler>
     virtual void klang_remove(wxCommandEvent &event); // wxGlade: <event_handler>

@@ -73,6 +73,8 @@ MyFrameMain::MyFrameMain(wxWindow* parent, int id, const wxString& title,
   frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(2)->Enable(false);
   // "Save as"
   frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(3)->Enable(false);
+  // "Close"
+  frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(4)->Enable(false);
 
   // "add klang
   frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(0)->Enable(false);
@@ -259,6 +261,8 @@ void MyFrameMain::openKlangset(wxString& path)
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(2)->Enable(true);
       // "Save as"
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(3)->Enable(true);
+      // "Close"
+      frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(4)->Enable(true);
       // "add klang
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(0)->Enable(true);
 
@@ -338,8 +342,9 @@ void MyFrameMain::klangset_new(wxCommandEvent &event)
 				       wxEmptyString,
 				       this);
   if(!newname.empty())
-   {
-      delete wxGetApp().ks_now; // if there's already one open, delete it
+    {
+      if(wxGetApp().ks_now)
+	delete wxGetApp().ks_now; // if there's already one open, delete it
       
       wxGetApp().ks_now = new Klangset;
       wxGetApp().ks_now->name = newname;
@@ -348,7 +353,7 @@ void MyFrameMain::klangset_new(wxCommandEvent &event)
       if(dir.empty())
 	dir = wxFileName::GetHomeDir();
       wxGetApp().ks_now_path = dir + wxFileName::GetPathSeparator() + wxGetApp().ks_now->name + wxT(".klw");
-
+     
       wxGetApp().ks_now_changed = false;
 
 
@@ -359,6 +364,8 @@ void MyFrameMain::klangset_new(wxCommandEvent &event)
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(2)->Enable(true);
       // "Save as"
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(3)->Enable(true);
+      // "Close"
+      frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(4)->Enable(true);
       // "add klang
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(0)->Enable(true);
 
@@ -369,7 +376,7 @@ void MyFrameMain::klangset_new(wxCommandEvent &event)
 
       SetTitle(wxT("Klangwunder3000 - ") + wxGetApp().ks_now->name + 
 	       wxString(wxT(" v. ")) << wxGetApp().ks_now->version);
-   }
+    }
 }
 
 
@@ -510,6 +517,62 @@ void MyFrameMain::klangset_saveas(wxCommandEvent &event)
       // now saved state == state in gui
       wxGetApp().ks_now_changed = false;
     }
+}
+
+
+
+void MyFrameMain::klangset_close(wxCommandEvent &event)
+{
+  if(wxGetApp().ks_now && wxGetApp().ks_now_changed)
+    {
+      int answer = wxMessageBox(_("Klangset changed. Save it before continuing?"), _("Save changed klangset?"),
+				wxYES_NO|wxCANCEL|wxICON_QUESTION, this);
+      
+      if(answer == wxCANCEL)
+	return;
+      if(answer == wxYES)
+	{
+	  wxCommandEvent unused;
+	  klangset_save(unused);
+	}
+    }
+
+  if(wxGetApp().ks_now) 
+    {
+      delete wxGetApp().ks_now; 
+      wxGetApp().ks_now = 0; 
+      grid_klangs->DeleteRows(0, grid_klangs->GetNumberRows());
+    }
+  
+
+  // this is "Save"
+  frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(2)->Enable(false);
+  // "Save as"
+  frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(3)->Enable(false);
+  // "Close"
+  frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("File")))->FindItemByPosition(4)->Enable(false);
+
+  // "add klang
+  frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(0)->Enable(false);
+  // "remove klang"
+  frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(1)->Enable(false);
+  // "info on klang"
+  frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(2)->Enable(false);
+  // "play klang"
+  frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(3)->Enable(false);
+
+  
+  /*
+    and disable buttons
+  */
+  button_play->Enable(false);
+  button_pause->Enable(false);
+  button_add->Enable(false);
+  button_remove->Enable(false);
+  button_info->Enable(false);
+  button_playklang->Enable(false);
+
+  SetTitle(wxT("Klangwunder3000"));
 }
 
 

@@ -49,6 +49,7 @@ public:
   void klangset_open(wxCommandEvent &event);
   void klangset_save(wxCommandEvent &event);
   void klangset_saveas(wxCommandEvent &event);
+  void klangset_close(wxCommandEvent &event);
 
   void klang_add(wxCommandEvent &event);
   void klang_remove(wxCommandEvent &event); 
