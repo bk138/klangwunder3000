@@ -558,7 +558,7 @@ bool Klangset::saveFile(const wxString& path)
 
   // write file data for each klang
   for(Klangset::iterator it = begin(); it != end(); ++it)
-    if(!fileToZip(&outzipstrm, it->filename, it->file_buffer))
+    if(!fileToZip(&outzipstrm, it->filename, it->getFileBuffer()))
       return false;
   
   // all well
@@ -627,7 +627,7 @@ bool Klangset::fileFromZip(wxFileInputStream& filestrm, wxString filename, std::
 
 
 
-bool Klangset::fileToZip(wxZipOutputStream* zipstrm, wxString filename, std::vector<char>& src)
+bool Klangset::fileToZip(wxZipOutputStream* zipstrm, wxString filename, const std::vector<char>& src)
 {
   wxZipEntry *entry =  new wxZipEntry(filename);
   entry->SetComment(wxT("Added by Klangwunder3000 version "VERSION"."));

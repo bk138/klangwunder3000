@@ -13,7 +13,7 @@
 
 
 
-struct Klang
+class Klang
 {
   wxString err;
 
@@ -43,6 +43,7 @@ public:
   float getDuration() const;
   int getSampleRate() const;
   int getChannels() const;
+  const std::vector<char>& getFileBuffer() const { const std::vector<char>& ref = file_buffer; return ref; };
   const wxString& getErr() const { const wxString& ref = err; return ref; };
 };
 
@@ -53,7 +54,7 @@ class Klangset: public std::deque<Klang>
   wxString err;
 
   bool fileFromZip(wxFileInputStream& filestrm, wxString filename, std::vector<char>* dest);
-  bool fileToZip(wxZipOutputStream* zipstrm, wxString filename, std::vector<char>& src);
+  bool fileToZip(wxZipOutputStream* zipstrm, wxString filename, const std::vector<char>& src);
 
 
  public:
