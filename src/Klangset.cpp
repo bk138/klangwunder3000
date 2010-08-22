@@ -274,6 +274,9 @@ bool Klangset::loadFile(const wxString& path)
 	  return false;
 	}
       
+      // don't forget to set current probability to initial one
+      k.p_now = k.p_init; 
+
       // all fine, add it
       push_back(k);
     }
