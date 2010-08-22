@@ -16,7 +16,15 @@ using namespace std;
   internal constants
 */
 #define KLW_CFGFILE "klangwunder.cfg" 
+#define PLAY_TIMER_INTERVAL 100
+#define PLAY_TIMER_ID 0
 
+
+
+// map recv of events to handler methods
+BEGIN_EVENT_TABLE(Klangset, wxEvtHandler)
+  EVT_TIMER   (PLAY_TIMER_ID, Klangset::onPlayTimer)
+END_EVENT_TABLE()
 
 
 
@@ -35,8 +43,18 @@ Klangset::Klangset()
 {
   version = 0;
   channels = 0;
+  play_timer.SetOwner(this, PLAY_TIMER_ID);
+  play_timer.Start(PLAY_TIMER_INTERVAL);
 }
 
+
+
+
+void Klangset::onPlayTimer(wxTimerEvent& event)
+{
+
+
+}
 
 
 
