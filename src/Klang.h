@@ -16,6 +16,7 @@ class Klang
   std::vector<char> data_buffer; // the decoded raw sound data
 
   ALuint static_source;
+  ALuint dynamic_source;
 
 public:
   double p_init;
@@ -35,6 +36,7 @@ public:
 
   bool loadSnd(std::vector<char>& src);
   bool playStatic(); // simply plays the sound for debug purposes
+  bool playDynamic(ALfloat x, ALfloat y, ALfloat z); // plays sound at given position
   float getDuration() const;
   int getSampleRate() const;
   int getChannels() const;

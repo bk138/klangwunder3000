@@ -22,6 +22,7 @@ Klang::Klang()
   
   alGenBuffers(1, &al_buffer);
   alGenSources(1, &static_source);
+  alGenSources(1, &dynamic_source);
 }
 
 
@@ -31,6 +32,8 @@ Klang::~Klang()
     alDeleteBuffers(1, &al_buffer);
   if(alIsSource(static_source))
     alDeleteSources(1, &static_source);
+  if(alIsSource(dynamic_source))
+    alDeleteSources(1, &dynamic_source);
 }
 
 
@@ -52,6 +55,7 @@ Klang::Klang(const Klang& k)
 
   alGenBuffers(1, &al_buffer);
   alGenSources(1, &static_source);
+  alGenSources(1, &dynamic_source);
 
   if(k.data_buffer.size() && alIsBuffer(k.al_buffer))
     {
@@ -262,6 +266,29 @@ bool Klang::playStatic()
 
   alSourcei (static_source, AL_BUFFER, al_buffer);
   alSourcePlay (static_source);
+
+  // Normally nothing should go wrong above, but one never knows...
+  ALenum error = alGetError();
+  if (error != ALUT_ERROR_NO_ERROR)
+    {
+      err.Printf(_("Error playing AL buffer: "));
+      err += wxString(alGetString(error), wxConvUTF8);
+      status = false;
+    }
+
+  return status;
+}
+
+
+bool Klang::playDynamic(ALfloat x, ALfloat y, ALfloat z)
+{
+  bool status = true;
+
+  if(al_buffer == AL_NONE)
+    return false;
+
+  alSourcei (dynamic_source, AL_BUFFER, al_buffer);
+  alSourcePlay (dynamic_source);
 
   // Normally nothing should go wrong above, but one never knows...
   ALenum error = alGetError();
