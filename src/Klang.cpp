@@ -253,7 +253,7 @@ bool Klang::loadSnd(vector<char>& src)
 }
 
 
-bool Klang::playSnd()
+bool Klang::playStatic()
 {
   bool status = true;
 
