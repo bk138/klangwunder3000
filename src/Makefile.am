@@ -20,6 +20,8 @@ bin_PROGRAMS = klangwunder3000
 klangwunder3000_SOURCES = \
 	KW3KApp.cpp   \
 	KW3KApp.h  \
+	Klang.cpp \
+	Klang.h \
 	Klangset.cpp \
 	Klangset.h \
 	dfltcfg.h \
