@@ -38,7 +38,9 @@ static inline size_t lRand(size_t limit);
 
 
 
-// initialise primitive datatypes
+/*
+  constructor / destructor
+*/
 Klangset::Klangset()
 {
   version = 0;
@@ -50,12 +52,98 @@ Klangset::Klangset()
 
 
 
+
+/*
+  private functions
+*/
+
 void Klangset::onPlayTimer(wxTimerEvent& event)
 {
 
 
 }
 
+
+
+bool Klangset::fileFromZip(wxFileInputStream& filestrm, wxString filename, std::vector<char>* dest)
+{
+  // we have to create a new wxZipInputStream each time because 
+  // we cannot rewind a wxZipInputStream
+  wxZipInputStream zipstrm(filestrm);
+
+  // convert the local name we are looking for into the internal format
+  wxString name = wxZipEntry::GetInternalName(filename);
+
+  auto_ptr<wxZipEntry> entry;
+  // call GetNextEntry() until the required internal name is found
+  do 
+    entry.reset(zipstrm.GetNextEntry());
+  while (entry.get() != 0 && entry->GetInternalName() != name);
+
+  // we found it
+  if(entry.get() != 0) 
+    {
+      size_t sz_entry = entry->GetSize();
+      if(sz_entry == 0)
+	{
+	  err.Printf(_("File '%s' in klangset is empty.\n"), filename.c_str());
+	  return false;
+	}
+
+      dest->resize(sz_entry);
+
+      size_t i=0;
+      while(i < sz_entry && !zipstrm.Eof())
+	 {
+	   dest->at(i) = zipstrm.GetC();
+	   ++i;
+	 }
+
+      // check if read was ok
+      if(i == sz_entry)
+	return true;
+      else
+	{
+	  err.Printf(_("Error reading '%s' in klangset.\nCorrupt file?\n"), filename.c_str());
+	  return false;
+	}
+    }
+  else 
+    {
+      err.Printf(_("Could not find '%s' in klangset.\n"), filename.c_str());
+      return false;
+    }
+}
+
+
+
+bool Klangset::fileToZip(wxZipOutputStream* zipstrm, wxString filename, const std::vector<char>& src)
+{
+  wxZipEntry *entry =  new wxZipEntry(filename);
+  entry->SetComment(wxT("Added by Klangwunder3000 version "VERSION"."));
+
+  bool good=true;
+  if(!zipstrm->PutNextEntry(entry))
+    good=false;
+
+  zipstrm->Write(&src[0], src.size());
+  if(zipstrm->LastWrite() != src.size())
+    good=false;
+
+  if(!good)
+    err.Printf(_("Could not add '%s' to klangset.\n"), filename.c_str());
+
+  return good;
+}
+
+
+
+
+
+
+/*
+  public functions
+*/
 
 
 bool Klangset::loadFile(const wxString& path)
@@ -263,82 +351,6 @@ bool Klangset::saveFile(const wxString& path)
 
 
 
-bool Klangset::fileFromZip(wxFileInputStream& filestrm, wxString filename, std::vector<char>* dest)
-{
-  // we have to create a new wxZipInputStream each time because 
-  // we cannot rewind a wxZipInputStream
-  wxZipInputStream zipstrm(filestrm);
-
-  // convert the local name we are looking for into the internal format
-  wxString name = wxZipEntry::GetInternalName(filename);
-
-  auto_ptr<wxZipEntry> entry;
-  // call GetNextEntry() until the required internal name is found
-  do 
-    entry.reset(zipstrm.GetNextEntry());
-  while (entry.get() != 0 && entry->GetInternalName() != name);
-
-  // we found it
-  if(entry.get() != 0) 
-    {
-      size_t sz_entry = entry->GetSize();
-      if(sz_entry == 0)
-	{
-	  err.Printf(_("File '%s' in klangset is empty.\n"), filename.c_str());
-	  return false;
-	}
-
-      dest->resize(sz_entry);
-
-      size_t i=0;
-      while(i < sz_entry && !zipstrm.Eof())
-	 {
-	   dest->at(i) = zipstrm.GetC();
-	   ++i;
-	 }
-
-      // check if read was ok
-      if(i == sz_entry)
-	return true;
-      else
-	{
-	  err.Printf(_("Error reading '%s' in klangset.\nCorrupt file?\n"), filename.c_str());
-	  return false;
-	}
-    }
-  else 
-    {
-      err.Printf(_("Could not find '%s' in klangset.\n"), filename.c_str());
-      return false;
-    }
-}
-
-
-
-
-
-bool Klangset::fileToZip(wxZipOutputStream* zipstrm, wxString filename, const std::vector<char>& src)
-{
-  wxZipEntry *entry =  new wxZipEntry(filename);
-  entry->SetComment(wxT("Added by Klangwunder3000 version "VERSION"."));
-
-  bool good=true;
-  if(!zipstrm->PutNextEntry(entry))
-    good=false;
-
-  zipstrm->Write(&src[0], src.size());
-  if(zipstrm->LastWrite() != src.size())
-    good=false;
-
-  if(!good)
-    err.Printf(_("Could not add '%s' to klangset.\n"), filename.c_str());
-
-  return good;
-}
-
-
-
-
 
 
 void Klangset::print() const
@@ -361,10 +373,6 @@ void Klangset::print() const
     }
   cout << endl;
 }
-
-
-
-
 
 
 
