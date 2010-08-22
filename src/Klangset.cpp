@@ -46,7 +46,6 @@ Klangset::Klangset()
   version = 0;
   channels = 0;
   play_timer.SetOwner(this, PLAY_TIMER_ID);
-  play_timer.Start(PLAY_TIMER_INTERVAL);
 }
 
 
@@ -345,8 +344,25 @@ bool Klangset::saveFile(const wxString& path)
 
 
 
+void Klangset::play()
+{
+  play_timer.Start(PLAY_TIMER_INTERVAL);
+}
 
 
+void Klangset::pause()
+{
+  play_timer.Stop();
+}
+
+
+void Klangset::stop()
+{
+  play_timer.Stop();
+  
+  for(Klangset::iterator it = begin(); it != end(); ++it)
+    it->p_now = it->p_init;
+}
 
 
 
