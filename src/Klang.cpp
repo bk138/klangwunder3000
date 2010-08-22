@@ -16,7 +16,7 @@ Klang::Klang()
   p_init = 0;
   p_incr= 0;
   p_decr = 0;
-  p_now = 0; 
+  p_now = p_init; 
   loops_min = 0;
   loops_max = 0;
   
