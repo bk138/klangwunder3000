@@ -781,8 +781,21 @@ void MyFrameMain::klang_play(wxCommandEvent &event)
   if(pos < 0) // invalid position
     return;
 
-  if(!wxGetApp().ks_now->at(pos).playStatic(true))
-    wxLogError(wxGetApp().ks_now->at(pos).getErr());
+  Klang& kref = wxGetApp().ks_now->at(pos);
+  bool status;
+  if(kref.isPlayingStatic())
+    {
+      status = kref.playStatic(false);
+      button_playklang->SetBitmapLabel(bitmapFromMem(playklang_png));
+    }
+  else
+    {
+      status = kref.playStatic(true);
+      button_playklang->SetBitmapLabel(bitmapFromMem(stopklang_png));
+    }
+
+  if(!status)
+    kref.getErr();
 }
 
 
@@ -794,12 +807,29 @@ void MyFrameMain::vol_change(wxScrollEvent &event)
 
 
 
-void MyFrameMain::grid_change(wxGridEvent &event)
+void MyFrameMain::grid_cell_change(wxGridEvent &event)
 {
   // now saved state != state in gui
   wxGetApp().ks_now_changed = true;
 }
 
+
+void MyFrameMain::grid_cell_select(wxGridEvent &event)
+{
+  int pos = event.GetRow();
+
+  if(pos >= 0)
+    {
+      Klang& kref = wxGetApp().ks_now->at(pos);
+      if(kref.isPlayingStatic())
+	button_playklang->SetBitmapLabel(bitmapFromMem(stopklang_png));
+      else
+	button_playklang->SetBitmapLabel(bitmapFromMem(playklang_png));
+    }
+
+  // hand thru to default handler
+  event.Skip();
+}
 
   
   

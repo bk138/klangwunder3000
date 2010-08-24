@@ -19,6 +19,7 @@
 #include "evtids.h"
 #endif
 #include "res/playklang.png.h"
+#include "res/stopklang.png.h"
 #include "res/info.png.h"
 #include "res/remove.png.h"
 #include "res/add.png.h"
@@ -80,7 +81,8 @@ public:
     virtual void klangset_playpause(wxCommandEvent &event); // wxGlade: <event_handler>
     virtual void klangset_stop(wxCommandEvent &event); // wxGlade: <event_handler>
     virtual void vol_change(wxScrollEvent &event); // wxGlade: <event_handler>
-    virtual void grid_change(wxGridEvent &event); // wxGlade: <event_handler>
+    virtual void grid_cell_change(wxGridEvent &event); // wxGlade: <event_handler>
+    virtual void grid_cell_select(wxGridEvent &event); // wxGlade: <event_handler>
 }; // wxGlade: end class
 
 

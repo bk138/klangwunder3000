@@ -35,6 +35,7 @@ klangwunder3000_SOURCES = \
 	gui/res/add.png.h \
 	gui/res/info.png.h \
 	gui/res/playklang.png.h \
+	gui/res/stopklang.png.h \
 	gui/res/pause.png.h \
 	gui/res/play.png.h \
 	gui/res/remove.png.h \
@@ -49,6 +50,7 @@ EXTRA_DIST = \
 	gui/res/add.png \
 	gui/res/info.png \
 	gui/res/playklang.png \
+	gui/res/stopklang.png \
 	gui/res/pause.png \
 	gui/res/play.png \
 	gui/res/remove.png \

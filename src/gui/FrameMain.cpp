@@ -75,7 +75,8 @@ BEGIN_EVENT_TABLE(FrameMain, wxFrame)
     EVT_BUTTON(wxID_REMOVE, FrameMain::klang_remove)
     EVT_BUTTON(wxID_PROPERTIES, FrameMain::klang_info)
     EVT_BUTTON(ID_PLAYKLANG, FrameMain::klang_play)
-    EVT_GRID_CMD_CELL_CHANGE(wxID_ANY, FrameMain::grid_change)
+    EVT_GRID_CMD_CELL_CHANGE(wxID_ANY, FrameMain::grid_cell_change)
+    EVT_GRID_CMD_SELECT_CELL(wxID_ANY, FrameMain::grid_cell_select)
     // end wxGlade
 END_EVENT_TABLE();
 
@@ -185,10 +186,17 @@ void FrameMain::vol_change(wxScrollEvent &event)
 }
 
 
-void FrameMain::grid_change(wxGridEvent &event)
+void FrameMain::grid_cell_change(wxGridEvent &event)
 {
     event.Skip();
-    wxLogDebug(wxT("Event handler (FrameMain::grid_change) not implemented yet")); //notify the user that he hasn't implemented the event handler yet
+    wxLogDebug(wxT("Event handler (FrameMain::grid_cell_change) not implemented yet")); //notify the user that he hasn't implemented the event handler yet
+}
+
+
+void FrameMain::grid_cell_select(wxGridEvent &event)
+{
+    event.Skip();
+    wxLogDebug(wxT("Event handler (FrameMain::grid_cell_select) not implemented yet")); //notify the user that he hasn't implemented the event handler yet
 }
 
 
