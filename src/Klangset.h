@@ -12,9 +12,23 @@
 #include "Klang.h"
 
 
+
+enum ks_status
+  {
+    KLANGSET_UNINITIALIZED = 138,
+    KLANGSET_FAULTY,
+    KLANGSET_PLAYING,
+    KLANGSET_PAUSED,
+    KLANGSET_STOPPED,
+  };
+  
+
+
 class Klangset: public std::deque<Klang>, public wxEvtHandler
 {
   wxString err;
+
+  ks_status status;
 
   bool fileFromZip(wxFileInputStream& filestrm, wxString filename, std::vector<char>* dest);
   bool fileToZip(wxZipOutputStream* zipstrm, wxString filename, const std::vector<char>& src);
@@ -41,6 +55,9 @@ public:
   void stop();
 
   void print() const;
+
+  ks_status getStatus() const { return status; };
+
   const wxString& getErr() const { const wxString& ref = err; return ref; };
 };
 

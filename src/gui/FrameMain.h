@@ -22,9 +22,9 @@
 #include "res/info.png.h"
 #include "res/remove.png.h"
 #include "res/add.png.h"
-#include "res/pause.png.h"
-#include "res/play.png.h"
 #include "res/stop.png.h"
+#include "res/play.png.h"
+#include "res/pause.png.h"
 
 // end wxGlade
 
@@ -47,8 +47,8 @@ protected:
     wxStaticBox* sizer_klangset_staticbox;
     wxMenuBar* frame_main_menubar;
     wxStatusBar* frame_main_statusbar;
-    wxBitmapButton* button_play;
-    wxBitmapButton* button_pause;
+    wxBitmapButton* button_playpause;
+    wxBitmapButton* button_stop;
     wxStaticText* label_vol;
     wxSlider* slider_vol;
     wxBitmapButton* button_add;
@@ -77,8 +77,8 @@ public:
     virtual void klang_play(wxCommandEvent &event); // wxGlade: <event_handler>
     virtual void help_contents(wxCommandEvent &event); // wxGlade: <event_handler>
     virtual void help_about(wxCommandEvent &event); // wxGlade: <event_handler>
-    virtual void klangset_play(wxCommandEvent &event); // wxGlade: <event_handler>
-    virtual void klangset_pause(wxCommandEvent &event); // wxGlade: <event_handler>
+    virtual void klangset_playpause(wxCommandEvent &event); // wxGlade: <event_handler>
+    virtual void klangset_stop(wxCommandEvent &event); // wxGlade: <event_handler>
     virtual void vol_change(wxScrollEvent &event); // wxGlade: <event_handler>
     virtual void grid_change(wxGridEvent &event); // wxGlade: <event_handler>
 }; // wxGlade: end class

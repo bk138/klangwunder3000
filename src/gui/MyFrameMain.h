@@ -4,7 +4,7 @@
 #define MYFRAMEMAIN_H
 
 #include "wx/dnd.h"
-
+#include "wx/timer.h"
 #include "../Klangset.h"
 #include "FrameMain.h"
 
@@ -30,8 +30,11 @@ class MyFrameMain: public FrameMain
   void klangset2grid(int begin, int end = -1);
   void grid2klangset();
 
-  // private handlers
   void onClose(wxCloseEvent& event);
+
+  wxTimer update_timer;
+  void onUpdateTimer(wxTimerEvent& event);
+  
   
 protected:
   DECLARE_EVENT_TABLE();
@@ -50,6 +53,8 @@ public:
   void klangset_save(wxCommandEvent &event);
   void klangset_saveas(wxCommandEvent &event);
   void klangset_close(wxCommandEvent &event);
+  void klangset_playpause(wxCommandEvent &event);
+  void klangset_stop(wxCommandEvent &event);
 
   void klang_add(wxCommandEvent &event);
   void klang_remove(wxCommandEvent &event); 

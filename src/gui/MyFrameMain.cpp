@@ -5,10 +5,14 @@
 #include "../KW3KApp.h"
 #include "../dfltcfg.h"
 
+#define UPDATE_TIMER_INTERVAL 500
+#define UPDATE_TIMER_ID 1
+
 
 // map recv of events to handler methods
 BEGIN_EVENT_TABLE(MyFrameMain, FrameMain)
    EVT_CLOSE (MyFrameMain::onClose)
+   EVT_TIMER (UPDATE_TIMER_ID, MyFrameMain::onUpdateTimer)
 END_EVENT_TABLE()
 
 
@@ -89,8 +93,8 @@ MyFrameMain::MyFrameMain(wxWindow* parent, int id, const wxString& title,
   /*
     and disable buttons
   */
-  button_play->Enable(false);
-  button_pause->Enable(false);
+  button_playpause->Enable(false);
+  button_stop->Enable(false);
   button_add->Enable(false);
   button_remove->Enable(false);
   button_info->Enable(false);
@@ -106,6 +110,9 @@ MyFrameMain::MyFrameMain(wxWindow* parent, int id, const wxString& title,
   wxFont lf = grid_klangs->GetLabelFont();
   lf.SetWeight(wxFONTWEIGHT_NORMAL);
   grid_klangs->SetLabelFont(lf);
+
+  update_timer.SetOwner(this, UPDATE_TIMER_ID);
+  update_timer.Start(UPDATE_TIMER_INTERVAL);
 
   // set current prob column to read-only
   wxGridCellAttr *a = new wxGridCellAttr;
@@ -169,6 +176,19 @@ void MyFrameMain::onClose(wxCloseEvent& event)
 
 
 
+void MyFrameMain::onUpdateTimer(wxTimerEvent& event)
+{
+  if(!wxGetApp().ks_now)
+    return;
+    
+  for(size_t row = 0; row < wxGetApp().ks_now->size(); ++row)
+    {
+      Klang k = wxGetApp().ks_now->at(row);
+      grid_klangs->SetCellValue(row, 1, wxString() << k.p_now);
+    }
+}
+
+
 
 void MyFrameMain::klangset2grid(int begin, int end)
 {
@@ -219,6 +239,7 @@ void MyFrameMain::grid2klangset()
       ++row;
     }
 }
+
 
 
 
@@ -289,8 +310,8 @@ void MyFrameMain::openKlangset(wxString& path)
 	  frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))
 	    ->FindItemByPosition(3)->Enable(true);
 
-	  button_play->Enable(true);
-	  button_pause->Enable(true);	
+	  button_playpause->Enable(true);
+	  button_stop->Enable(true);	
 	  button_remove->Enable(true);
 	  button_info->Enable(true);
 	  button_playklang->Enable(true);
@@ -571,8 +592,8 @@ void MyFrameMain::klangset_close(wxCommandEvent &event)
   /*
     and disable buttons
   */
-  button_play->Enable(false);
-  button_pause->Enable(false);
+  button_playpause->Enable(false);
+  button_stop->Enable(false);
   button_add->Enable(false);
   button_remove->Enable(false);
   button_info->Enable(false);
@@ -581,6 +602,34 @@ void MyFrameMain::klangset_close(wxCommandEvent &event)
   SetTitle(wxT("Klangwunder3000"));
 }
 
+
+
+void MyFrameMain::klangset_playpause(wxCommandEvent &event)
+{
+  if(wxGetApp().ks_now)
+    {
+      if(wxGetApp().ks_now->getStatus() == KLANGSET_PLAYING)
+	{
+	  wxGetApp().ks_now->pause();
+	  button_playpause->SetBitmapLabel(bitmapFromMem(play_png));
+	}
+      else
+	{
+	  wxGetApp().ks_now->play();
+	  button_playpause->SetBitmapLabel(bitmapFromMem(pause_png));
+	}
+    }
+}
+
+
+void MyFrameMain::klangset_stop(wxCommandEvent &event)
+{
+  if(wxGetApp().ks_now)
+    {
+      wxGetApp().ks_now->stop();
+      button_playpause->SetBitmapLabel(bitmapFromMem(play_png));
+    }
+}
 
 
 
@@ -638,8 +687,8 @@ void MyFrameMain::klang_add(wxCommandEvent &event)
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(2)->Enable(true);
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(3)->Enable(true);
 
-      button_play->Enable(true);
-      button_pause->Enable(true);
+      button_playpause->Enable(true);
+      button_stop->Enable(true);
       button_remove->Enable(true);
       button_info->Enable(true);
       button_playklang->Enable(true);
@@ -677,8 +726,8 @@ void MyFrameMain::klang_remove(wxCommandEvent &event)
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(1)->Enable(false);
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(2)->Enable(false);
       frame_main_menubar->GetMenu(frame_main_menubar->FindMenu(wxT("Edit")))->FindItemByPosition(3)->Enable(false);
-      button_play->Enable(false);
-      button_pause->Enable(false);
+      button_playpause->Enable(false);
+      button_stop->Enable(false);
       button_remove->Enable(false);
       button_info->Enable(false);
       button_playklang->Enable(false);

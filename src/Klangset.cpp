@@ -16,7 +16,7 @@ using namespace std;
   internal constants
 */
 #define KLW_CFGFILE "klangwunder.cfg" 
-#define PLAY_TIMER_INTERVAL 100
+#define PLAY_TIMER_INTERVAL 1000
 #define PLAY_TIMER_ID 0
 
 
@@ -58,8 +58,28 @@ Klangset::Klangset()
 
 void Klangset::onPlayTimer(wxTimerEvent& event)
 {
+  for(Klangset::iterator it = begin(); it != end(); ++it)
+    {
+      it->p_now += it->p_incr;
+      if(it->p_now > 1)
+	it->p_now = 1;
 
+      size_t r = lRand(100)+1;
+      size_t p = it->p_now*100;
 
+      cerr << "r " << r << "p " << p ;
+
+      if(r <= p)
+	//      if(lRand(100)+1 <= it->p_now*100)
+	{
+	  cerr << " play!" << endl;
+
+	  it->playDynamic(0,0,0);
+	  it->p_now -= it->p_decr;
+	  if(it->p_now < 0)
+	    it->p_now = 0;
+	}
+    }
 }
 
 
@@ -86,6 +106,7 @@ bool Klangset::fileFromZip(wxFileInputStream& filestrm, wxString filename, std::
       if(sz_entry == 0)
 	{
 	  err.Printf(_("File '%s' in klangset is empty.\n"), filename.c_str());
+	  status = KLANGSET_FAULTY;
 	  return false;
 	}
 
@@ -104,12 +125,14 @@ bool Klangset::fileFromZip(wxFileInputStream& filestrm, wxString filename, std::
       else
 	{
 	  err.Printf(_("Error reading '%s' in klangset.\nCorrupt file?\n"), filename.c_str());
+	  status = KLANGSET_FAULTY;
 	  return false;
 	}
     }
   else 
     {
       err.Printf(_("Could not find '%s' in klangset.\n"), filename.c_str());
+      status = KLANGSET_FAULTY;
       return false;
     }
 }
@@ -130,8 +153,11 @@ bool Klangset::fileToZip(wxZipOutputStream* zipstrm, wxString filename, const st
     good=false;
 
   if(!good)
-    err.Printf(_("Could not add '%s' to klangset.\n"), filename.c_str());
-
+    {
+      err.Printf(_("Could not add '%s' to klangset.\n"), filename.c_str());
+      status = KLANGSET_FAULTY;
+    }
+  
   return good;
 }
 
@@ -152,13 +178,17 @@ bool Klangset::loadFile(const wxString& path)
   if(! archive.IsOk())
     {
       err.Printf(_("Could not open klangset '%s'.\n"), path.c_str());
+      status = KLANGSET_FAULTY;
       return false;
     }
 
   vector<char> cfgfile_buf;
 
   if(! fileFromZip(archive, wxT(KLW_CFGFILE), &cfgfile_buf))
-    return false;
+    {
+      status = KLANGSET_FAULTY;
+      return false;
+    }
 
   // create a memory input stream out of the buffer
   // and use it to create a wxFileConfig object
@@ -174,12 +204,14 @@ bool Klangset::loadFile(const wxString& path)
   if (! cfg.Read(wxT("Name"), &name))
     {
       err.Printf(_("Could not read name of klangset.\n"));
+      status = KLANGSET_FAULTY;
       return false;
     }
  
   if (! cfg.Read(wxT("Version"), &in_long))
     {
       err.Printf(_("Could not read version of klangset.\n"));
+      status = KLANGSET_FAULTY;
       return false;
     }
   else
@@ -188,6 +220,7 @@ bool Klangset::loadFile(const wxString& path)
   if (! cfg.Read(wxT("Channels"), &in_long))
     {
       err.Printf(_("Could not read number of channels of klangset.\n"));
+      status = KLANGSET_FAULTY;
       return false;
     }
   else
@@ -222,24 +255,28 @@ bool Klangset::loadFile(const wxString& path)
       if(!cfg.Read(wxT("P_init"), &k.p_init))
 	{
 	  err.Printf(_("Could not read initial propability of klang '%s'.\n"), klangs[i].c_str());
+	  status = KLANGSET_FAULTY;
 	  return false;
 	}
 
       if(!cfg.Read(wxT("P_incr"), &k.p_incr))
 	{
 	  err.Printf(_("Could not read propability increment of klang '%s'.\n"), klangs[i].c_str());
+	  status = KLANGSET_FAULTY;
 	  return false;
 	}
         
       if(!cfg.Read(wxT("P_decr"), &k.p_decr))
 	{
 	  err.Printf(_("Could not read propability decrement of klang '%s'.\n"), klangs[i].c_str());
+	  status = KLANGSET_FAULTY;
 	  return false;
 	}
 
       if(!cfg.Read(wxT("Loops_min"), &in_long))
 	{
 	  err.Printf(_("Could not read minimum loop count of klang '%s'.\n"), klangs[i].c_str());
+	  status = KLANGSET_FAULTY;
 	  return false;
 	}
       else
@@ -248,6 +285,7 @@ bool Klangset::loadFile(const wxString& path)
       if(!cfg.Read(wxT("Loops_max"), &in_long))
 	{
 	  err.Printf(_("Could not read maximum loop count of klang '%s'.\n"), klangs[i].c_str());
+	  status = KLANGSET_FAULTY;
 	  return false;
 	}
       else
@@ -256,6 +294,7 @@ bool Klangset::loadFile(const wxString& path)
       if(!cfg.Read(wxT("Filename"), &k.filename))
 	{
 	  err.Printf(_("Could not read internal filename of klang '%s'.\n"), klangs[i].c_str());
+	  status = KLANGSET_FAULTY;
 	  return false;
 	}
 
@@ -264,12 +303,14 @@ bool Klangset::loadFile(const wxString& path)
       if(! fileFromZip(archive, k.filename, &sndfile_buf))
 	{
 	  err.Printf(_("Could not read associated sound file of klang '%s'.\n"), klangs[i].c_str());
+	  status = KLANGSET_FAULTY;
 	  return false;
 	}
 
       if(! k.loadSnd(sndfile_buf))
 	{
 	  err.Printf(_("Could not decode sound file of klang '%s'.\n"), klangs[i].c_str());
+	  status = KLANGSET_FAULTY;
 	  err += k.getErr();
 	  return false;
 	}
@@ -327,6 +368,7 @@ bool Klangset::saveFile(const wxString& path)
   if(! archive.IsOk())
     {
       err.Printf(_("Could not write klangset '%s' .\n"), path.c_str());
+      status = KLANGSET_FAULTY;
       return false;
     }
 
@@ -334,12 +376,19 @@ bool Klangset::saveFile(const wxString& path)
   outzipstrm.SetComment(wxT("KLW archive created by Klangwunder3000 version "VERSION"."));
   
   if(!fileToZip(&outzipstrm, wxT(KLW_CFGFILE), buf))
-    return false;
+    {
+      status = KLANGSET_FAULTY;
+      return false;
+    }
+
 
   // write file data for each klang
   for(Klangset::iterator it = begin(); it != end(); ++it)
     if(!fileToZip(&outzipstrm, it->filename, it->getFileBuffer()))
-      return false;
+      {
+	status = KLANGSET_FAULTY;
+	return false;
+      }
   
   // all well
   return true;
@@ -350,12 +399,14 @@ bool Klangset::saveFile(const wxString& path)
 void Klangset::play()
 {
   play_timer.Start(PLAY_TIMER_INTERVAL);
+  status = KLANGSET_PLAYING;
 }
 
 
 void Klangset::pause()
 {
   play_timer.Stop();
+  status = KLANGSET_PAUSED;
 }
 
 
@@ -364,7 +415,12 @@ void Klangset::stop()
   play_timer.Stop();
   
   for(Klangset::iterator it = begin(); it != end(); ++it)
-    it->p_now = it->p_init;
+    {
+      
+      it->p_now = it->p_init;
+    }
+
+  status = KLANGSET_STOPPED;
 }
 
 

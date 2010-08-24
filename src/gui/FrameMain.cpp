@@ -36,8 +36,8 @@ FrameMain::FrameMain(wxWindow* parent, int id, const wxString& title, const wxPo
     frame_main_menubar->Append(wxglade_tmp_menu_3, _("&Help"));
     SetMenuBar(frame_main_menubar);
     frame_main_statusbar = CreateStatusBar(2, 0);
-    button_play = new wxBitmapButton(panel_top, ID_PLAYKLANGSET, (bitmapFromMem(play_png)));
-    button_pause = new wxBitmapButton(panel_top, ID_PAUSEKLANGSET, (bitmapFromMem(pause_png)));
+    button_playpause = new wxBitmapButton(panel_top, ID_PLAYPAUSEKLANGSET, (bitmapFromMem(play_png)));
+    button_stop = new wxBitmapButton(panel_top, ID_STOPKLANGSET, (bitmapFromMem(stop_png)));
     label_vol = new wxStaticText(panel_top, wxID_ANY, _("Volume"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE);
     slider_vol = new wxSlider(panel_top, ID_VOLCHANGE, 0, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL|wxSL_LABELS);
     button_add = new wxBitmapButton(panel_top, wxID_ADD, (bitmapFromMem(add_png)));
@@ -68,8 +68,8 @@ BEGIN_EVENT_TABLE(FrameMain, wxFrame)
     EVT_MENU(ID_PLAYKLANG, FrameMain::klang_play)
     EVT_MENU(wxID_HELP, FrameMain::help_contents)
     EVT_MENU(wxID_ABOUT, FrameMain::help_about)
-    EVT_BUTTON(ID_PLAYKLANGSET, FrameMain::klangset_play)
-    EVT_BUTTON(ID_PAUSEKLANGSET, FrameMain::klangset_pause)
+    EVT_BUTTON(ID_PLAYPAUSEKLANGSET, FrameMain::klangset_playpause)
+    EVT_BUTTON(ID_STOPKLANGSET, FrameMain::klangset_stop)
     EVT_COMMAND_SCROLL(ID_VOLCHANGE, FrameMain::vol_change)
     EVT_BUTTON(wxID_ADD, FrameMain::klang_add)
     EVT_BUTTON(wxID_REMOVE, FrameMain::klang_remove)
@@ -164,17 +164,17 @@ void FrameMain::help_about(wxCommandEvent &event)
 }
 
 
-void FrameMain::klangset_play(wxCommandEvent &event)
+void FrameMain::klangset_playpause(wxCommandEvent &event)
 {
     event.Skip();
-    wxLogDebug(wxT("Event handler (FrameMain::klangset_play) not implemented yet")); //notify the user that he hasn't implemented the event handler yet
+    wxLogDebug(wxT("Event handler (FrameMain::klangset_playpause) not implemented yet")); //notify the user that he hasn't implemented the event handler yet
 }
 
 
-void FrameMain::klangset_pause(wxCommandEvent &event)
+void FrameMain::klangset_stop(wxCommandEvent &event)
 {
     event.Skip();
-    wxLogDebug(wxT("Event handler (FrameMain::klangset_pause) not implemented yet")); //notify the user that he hasn't implemented the event handler yet
+    wxLogDebug(wxT("Event handler (FrameMain::klangset_stop) not implemented yet")); //notify the user that he hasn't implemented the event handler yet
 }
 
 
@@ -211,11 +211,10 @@ void FrameMain::set_properties()
     for(int i = 0; i < frame_main_statusbar->GetFieldsCount(); ++i) {
         frame_main_statusbar->SetStatusText(frame_main_statusbar_fields[i], i);
     }
-    button_play->SetToolTip(_("Play / Stop"));
-    button_play->SetBitmapDisabled((bitmapFromMem(stop_png)));
-    button_play->SetSize(button_play->GetBestSize());
-    button_pause->SetToolTip(_("Pause"));
-    button_pause->SetSize(button_pause->GetBestSize());
+    button_playpause->SetToolTip(_("Play / Pause"));
+    button_playpause->SetSize(button_playpause->GetBestSize());
+    button_stop->SetToolTip(_("Stop"));
+    button_stop->SetSize(button_stop->GetBestSize());
     slider_vol->SetToolTip(_("Change volume"));
     button_add->SetToolTip(_("Add klang"));
     button_add->SetSize(button_add->GetBestSize());
@@ -260,8 +259,8 @@ void FrameMain::do_layout()
     wxBoxSizer* sizer_channels = new wxBoxSizer(wxHORIZONTAL);
     wxBoxSizer* sizer_klang_buttons = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer* sizer_bar = new wxBoxSizer(wxHORIZONTAL);
-    sizer_bar->Add(button_play, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5);
-    sizer_bar->Add(button_pause, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5);
+    sizer_bar->Add(button_playpause, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5);
+    sizer_bar->Add(button_stop, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5);
     sizer_bar->Add(25, 5, 0, wxALIGN_CENTER_VERTICAL, 0);
     sizer_bar->Add(label_vol, 0, wxALL|wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL, 5);
     sizer_bar->Add(slider_vol, 1, wxALL|wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL, 5);
