@@ -282,6 +282,21 @@ bool Klang::playStatic(bool play)
   return status;
 }
 
+#include <iostream>
+
+bool Klang::isPlayingStatic() const
+{
+  if(alIsSource(static_source))
+    {
+      int state;
+      alGetSourcei(static_source, AL_SOURCE_STATE, &state);
+      return (state == AL_PLAYING);
+    }
+  else
+    return false;
+}
+
+
 
 bool Klang::playDynamic(bool play, ALfloat x, ALfloat y, ALfloat z)
 {
@@ -306,6 +321,19 @@ bool Klang::playDynamic(bool play, ALfloat x, ALfloat y, ALfloat z)
     }
 
   return status;
+}
+
+
+bool Klang::isPlayingDynamic() const
+{
+  if(alIsSource(dynamic_source))
+    {
+      int state;
+      alGetSourcei(dynamic_source, AL_SOURCE_STATE, &state);
+      return (state == AL_PLAYING);
+    }
+  else
+    return false;
 }
 
 
