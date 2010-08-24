@@ -257,7 +257,7 @@ bool Klang::loadSnd(vector<char>& src)
 }
 
 
-bool Klang::playStatic()
+bool Klang::playStatic(bool play)
 {
   bool status = true;
 
@@ -265,7 +265,10 @@ bool Klang::playStatic()
     return false;
 
   alSourcei (static_source, AL_BUFFER, al_buffer);
-  alSourcePlay (static_source);
+  if(play)
+    alSourcePlay(static_source);
+  else
+    alSourceStop(static_source);
 
   // Normally nothing should go wrong above, but one never knows...
   ALenum error = alGetError();
@@ -280,7 +283,7 @@ bool Klang::playStatic()
 }
 
 
-bool Klang::playDynamic(ALfloat x, ALfloat y, ALfloat z)
+bool Klang::playDynamic(bool play, ALfloat x, ALfloat y, ALfloat z)
 {
   bool status = true;
 
@@ -288,7 +291,10 @@ bool Klang::playDynamic(ALfloat x, ALfloat y, ALfloat z)
     return false;
 
   alSourcei (dynamic_source, AL_BUFFER, al_buffer);
-  alSourcePlay (dynamic_source);
+  if(play)
+    alSourcePlay(dynamic_source);
+  else
+    alSourceStop(dynamic_source);
 
   // Normally nothing should go wrong above, but one never knows...
   ALenum error = alGetError();

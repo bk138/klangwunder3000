@@ -781,7 +781,7 @@ void MyFrameMain::klang_play(wxCommandEvent &event)
   if(pos < 0) // invalid position
     return;
 
-  if(!wxGetApp().ks_now->at(pos).playStatic())
+  if(!wxGetApp().ks_now->at(pos).playStatic(true))
     wxLogError(wxGetApp().ks_now->at(pos).getErr());
 }
 

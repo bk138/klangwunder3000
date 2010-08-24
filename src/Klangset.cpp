@@ -74,7 +74,7 @@ void Klangset::onPlayTimer(wxTimerEvent& event)
 	{
 	  cerr << " play!" << endl;
 
-	  it->playDynamic(0,0,0);
+	  it->playDynamic(true);
 	  it->p_now -= it->p_decr;
 	  if(it->p_now < 0)
 	    it->p_now = 0;
@@ -406,6 +406,10 @@ void Klangset::play()
 void Klangset::pause()
 {
   play_timer.Stop();
+
+  for(Klangset::iterator it = begin(); it != end(); ++it)
+    it->playDynamic(false);
+  
   status = KLANGSET_PAUSED;
 }
 
@@ -416,7 +420,7 @@ void Klangset::stop()
   
   for(Klangset::iterator it = begin(); it != end(); ++it)
     {
-      
+      it->playDynamic(false);
       it->p_now = it->p_init;
     }
 

@@ -35,8 +35,8 @@ public:
   Klang(const Klang& k);
 
   bool loadSnd(std::vector<char>& src);
-  bool playStatic(); // simply plays the sound for debug purposes
-  bool playDynamic(ALfloat x, ALfloat y, ALfloat z); // plays sound at given position
+  bool playStatic(bool play); // simply plays the sound for debug purposes
+  bool playDynamic(bool play, ALfloat x=0, ALfloat y=0, ALfloat z=0); // plays sound at given position
   float getDuration() const;
   int getSampleRate() const;
   int getChannels() const;
