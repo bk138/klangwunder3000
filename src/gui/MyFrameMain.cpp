@@ -220,21 +220,16 @@ void MyFrameMain::grid2klangset()
   // This is called automatically when the grid cursor moves from the current cell to a new cell.
   grid_klangs->SaveEditControlValue();
 
-  long in_long = 0;
-
   int row = 0;
   for(Klangset::iterator it = wxGetApp().ks_now->begin(); it != wxGetApp().ks_now->end(); ++it)
     {
       it->name = grid_klangs->GetCellValue(row, 0);
 
-      grid_klangs->GetCellValue(row, 2).ToDouble(&it->p_init);
-      grid_klangs->GetCellValue(row, 3).ToDouble(&it->p_incr);
-      grid_klangs->GetCellValue(row, 4).ToDouble(&it->p_decr);
-
-      grid_klangs->GetCellValue(row, 5).ToLong(&in_long);
-      it->loops_min = in_long;
-      grid_klangs->GetCellValue(row, 6).ToLong(&in_long);
-      it->loops_max = in_long;
+      it->p_init = wxAtoi(grid_klangs->GetCellValue(row, 2));
+      it->p_incr = wxAtoi(grid_klangs->GetCellValue(row, 3));
+      it->p_decr = wxAtoi(grid_klangs->GetCellValue(row, 4));
+      it->loops_min = wxAtoi(grid_klangs->GetCellValue(row, 5));
+      it->loops_max = wxAtoi(grid_klangs->GetCellValue(row, 6));
 	
       ++row;
     }

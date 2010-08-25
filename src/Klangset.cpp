@@ -60,13 +60,13 @@ void Klangset::onPlayTimer(wxTimerEvent& event)
   for(Klangset::iterator it = begin(); it != end(); ++it)
     {
       it->p_now += it->p_incr;
-      if(it->p_now > 1)
-	it->p_now = 1;
+      if(it->p_now > 100)
+	it->p_now = 100;
 
       size_t r = lRand(100)+1;
-      size_t p = it->p_now*100;
+      size_t p = it->p_now;
 
-      cerr << "r " << r << "p " << p ;
+      cerr << "random nr: " << r << "  P: " << p << endl;
 
       if(r <= p)
 	//      if(lRand(100)+1 <= it->p_now*100)
@@ -242,26 +242,32 @@ bool Klangset::loadFile(const wxString& path)
 
       cfg.SetPath(wxT("/Klangs/") + klangs[i]);
 
-      if(!cfg.Read(wxT("P_init"), &k.p_init))
+      if(!cfg.Read(wxT("P_init"), &in_long))
 	{
 	  err.Printf(_("Could not read initial propability of klang '%s'.\n"), klangs[i].c_str());
 	  status = KLANGSET_FAULTY;
 	  return false;
 	}
+      else
+	k.p_init = in_long;
 
-      if(!cfg.Read(wxT("P_incr"), &k.p_incr))
+      if(!cfg.Read(wxT("P_incr"), &in_long))
 	{
 	  err.Printf(_("Could not read propability increment of klang '%s'.\n"), klangs[i].c_str());
 	  status = KLANGSET_FAULTY;
 	  return false;
 	}
+      else
+	k.p_incr = in_long;
         
-      if(!cfg.Read(wxT("P_decr"), &k.p_decr))
+      if(!cfg.Read(wxT("P_decr"), &in_long))
 	{
 	  err.Printf(_("Could not read propability decrement of klang '%s'.\n"), klangs[i].c_str());
 	  status = KLANGSET_FAULTY;
 	  return false;
 	}
+      else
+	k.p_decr = in_long;
 
       if(!cfg.Read(wxT("Loops_min"), &in_long))
 	{
@@ -431,10 +437,10 @@ void Klangset::print() const
     {
       ++i;
       cout <<  endl << i  << " - " <<  it->name.utf8_str() << endl;
-      cout << "P now:  " << it->p_now << endl;
-      cout << "P init: " << it->p_init << endl;
-      cout << "P incr: " << it->p_incr << endl;
-      cout << "P decr: " << it->p_decr << endl;
+      cout << "P now:  " << (int)it->p_now << endl;
+      cout << "P init: " << (int)it->p_init << endl;
+      cout << "P incr: " << (int)it->p_incr << endl;
+      cout << "P decr: " << (int)it->p_decr << endl;
       cout << "Lp min: " << it->loops_min << endl;
       cout << "Lp max: " << it->loops_max << endl;
     }

@@ -19,10 +19,10 @@ class Klang
   ALuint dynamic_source;
 
 public:
-  double p_init;
-  double p_incr;
-  double p_decr;
-  double p_now;
+  uint8_t p_init;
+  uint8_t p_incr;
+  uint8_t p_decr;
+  uint8_t p_now;
   size_t loops_min;
   size_t loops_max;
   wxString filename;
