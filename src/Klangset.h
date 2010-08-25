@@ -43,7 +43,6 @@ protected:
 public:
   wxString name;
   size_t version; 
-  size_t channels;
 
   Klangset();
 

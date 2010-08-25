@@ -7,7 +7,6 @@
 #define FRAMEMAIN_H
 
 // begin wxGlade: ::dependencies
-#include <wx/spinctrl.h>
 #include <wx/grid.h>
 // end wxGlade
 
@@ -56,8 +55,6 @@ protected:
     wxBitmapButton* button_remove;
     wxBitmapButton* button_info;
     wxBitmapButton* button_playklang;
-    wxStaticText* label_channels;
-    wxSpinCtrl* spin_ctrl_channels;
     wxGrid* grid_klangs;
     wxPanel* panel_grid;
     wxPanel* panel_top;

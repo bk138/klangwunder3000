@@ -13,7 +13,7 @@ FrameMain::FrameMain(wxWindow* parent, int id, const wxString& title, const wxPo
     // begin wxGlade: FrameMain::FrameMain
     panel_top = new wxPanel(this, wxID_ANY);
     sizer_klangset_staticbox = new wxStaticBox(panel_top, -1, wxEmptyString);
-    panel_grid = new wxPanel(panel_top, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER|wxSTATIC_BORDER|wxTAB_TRAVERSAL);
+    panel_grid = new wxPanel(panel_top, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxRAISED_BORDER|wxTAB_TRAVERSAL);
     frame_main_menubar = new wxMenuBar();
     wxMenu* wxglade_tmp_menu_1 = new wxMenu();
     wxglade_tmp_menu_1->Append(wxID_NEW, _("&New"), _("Create a new klangset."), wxITEM_NORMAL);
@@ -44,8 +44,6 @@ FrameMain::FrameMain(wxWindow* parent, int id, const wxString& title, const wxPo
     button_remove = new wxBitmapButton(panel_top, wxID_REMOVE, (bitmapFromMem(remove_png)));
     button_info = new wxBitmapButton(panel_top, wxID_PROPERTIES, (bitmapFromMem(info_png)));
     button_playklang = new wxBitmapButton(panel_top, ID_PLAYKLANG, (bitmapFromMem(playklang_png)));
-    label_channels = new wxStaticText(panel_top, wxID_ANY, _("Channels"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTRE);
-    spin_ctrl_channels = new wxSpinCtrl(panel_top, wxID_ANY, wxT(""), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 11);
     grid_klangs = new wxGrid(panel_grid, wxID_ANY);
 
     set_properties();
@@ -232,7 +230,6 @@ void FrameMain::set_properties()
     button_info->SetSize(button_info->GetBestSize());
     button_playklang->SetToolTip(_("Play this klang"));
     button_playklang->SetSize(button_playklang->GetBestSize());
-    spin_ctrl_channels->SetToolTip(_("Change number of simultaneously playing channels"));
     grid_klangs->CreateGrid(0, 7);
     grid_klangs->SetRowLabelSize(0);
     grid_klangs->EnableDragRowSize(false);
@@ -264,7 +261,6 @@ void FrameMain::do_layout()
     wxStaticBoxSizer* sizer_klangset = new wxStaticBoxSizer(sizer_klangset_staticbox, wxHORIZONTAL);
     wxBoxSizer* sizer_klang_list = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer* sizer_grid = new wxBoxSizer(wxHORIZONTAL);
-    wxBoxSizer* sizer_channels = new wxBoxSizer(wxHORIZONTAL);
     wxBoxSizer* sizer_klang_buttons = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer* sizer_bar = new wxBoxSizer(wxHORIZONTAL);
     sizer_bar->Add(button_playpause, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5);
@@ -279,12 +275,9 @@ void FrameMain::do_layout()
     sizer_klang_buttons->Add(button_info, 0, wxALL, 5);
     sizer_klang_buttons->Add(button_playklang, 0, wxALL, 5);
     sizer_klangset->Add(sizer_klang_buttons, 0, wxRIGHT, 5);
-    sizer_channels->Add(label_channels, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5);
-    sizer_channels->Add(spin_ctrl_channels, 0, wxALL, 5);
-    sizer_klang_list->Add(sizer_channels, 0, wxEXPAND, 0);
     sizer_grid->Add(grid_klangs, 1, wxEXPAND, 0);
     panel_grid->SetSizer(sizer_grid);
-    sizer_klang_list->Add(panel_grid, 1, wxEXPAND, 0);
+    sizer_klang_list->Add(panel_grid, 1, wxALL|wxEXPAND, 5);
     sizer_klangset->Add(sizer_klang_list, 1, wxEXPAND, 0);
     sizer_main->Add(sizer_klangset, 1, wxALL|wxEXPAND, 5);
     panel_top->SetSizer(sizer_main);

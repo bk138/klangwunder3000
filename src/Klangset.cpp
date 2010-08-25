@@ -44,7 +44,6 @@ static inline size_t lRand(size_t limit);
 Klangset::Klangset()
 {
   version = 0;
-  channels = 0;
   play_timer.SetOwner(this, PLAY_TIMER_ID);
 }
 
@@ -217,15 +216,6 @@ bool Klangset::loadFile(const wxString& path)
   else
     version = in_long;
  
-  if (! cfg.Read(wxT("Channels"), &in_long))
-    {
-      err.Printf(_("Could not read number of channels of klangset.\n"));
-      status = KLANGSET_FAULTY;
-      return false;
-    }
-  else
-    channels = in_long;
- 
    
   // get list of klangs
   cfg.SetPath(wxT("/Klangs/"));
@@ -335,8 +325,7 @@ bool Klangset::saveFile(const wxString& path)
   
   cfg.Write(wxT("Name"), name);
   cfg.Write(wxT("Version"), (long)++version);
-  cfg.Write(wxT("Channels"), (long)channels);
- 
+
 
   // write config data for each klang
   for(Klangset::iterator it = begin(); it != end(); ++it)
@@ -436,7 +425,6 @@ void Klangset::print() const
 {
   cout << "\nCurrent Klangset: " << name.utf8_str() << endl;
   cout << "Version: " << version << endl;
-  cout << "Channels: " << channels << endl;
 
   size_t i=0;
   for(Klangset::const_iterator it = begin(); it != end(); ++it)
