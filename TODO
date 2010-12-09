@@ -1,4 +1,6 @@
 
+* revamp build system
+
 * sound engine 
     * libavformat + libavcodec + openal
 
